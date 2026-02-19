@@ -1,0 +1,1115 @@
+/* ===============================
+   National Parks Planner — style.css
+   Aligned with index.html + app.js (IDs/classes match)
+================================ */
+
+/* ---------- Theme tokens ---------- */
+:root{
+  --bg: #0b0f14;
+  --panelTop: #121823;
+  --panelBottom: #0b0f14;
+
+  --text: rgba(234,234,234,0.95);
+  --muted: rgba(234,234,234,0.70);
+
+  --card: rgba(255,255,255,0.06);
+  --cardHover: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.12);
+  --borderStrong: rgba(255,255,255,0.18);
+
+  --primary: #bb00ff;
+  --accent: #1e90ff;
+  --good: #00ff66;
+  --danger: #ff4d4d;
+  --warn: #ff9800;
+
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --radius: 16px;
+}
+
+/* ---------- Base ---------- */
+*{ box-sizing: border-box; }
+
+html, body{
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.35;
+}
+
+body{
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a{ color: inherit; }
+
+/* Utility used by app.js */
+.is-hidden{ display: none !important; }
+
+/* ---------- App layout (Sidebar + Map) ---------- */
+.app{
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  overflow: hidden;
+}
+
+/* Sidebar container: must match index.html (#sidebar) */
+#sidebar{
+  background: linear-gradient(180deg, var(--panelTop), var(--panelBottom));
+  border-right: 1px solid rgba(255,255,255,0.08);
+  overflow: auto;
+  padding: 18px 18px 22px;
+}
+
+/* Map column */
+.map-wrap{
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+#map, .map{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Header (sticky) ---------- */
+.app-header{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 10px 8px 14px;
+  margin: -10px -8px 12px;
+  background: linear-gradient(180deg, rgba(18,24,35,0.98), rgba(11,15,20,0.92));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.app-header h1{
+  margin: 2px 0 6px;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+}
+
+.app-header p{
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- Mode tabs (Planner / Day-by-Day) ---------- */
+.mode-tabs{
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.mode-tabs button{
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mode-tabs button.is-active{
+  color: var(--text);
+  background: rgba(255,255,255,0.10);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
+}
+
+.mode-tabs button:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(187,0,255,0.18);
+}
+
+/* ---------- Sections ---------- */
+.section{
+  padding-top: 14px;
+}
+
+.section h2{
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+/* ---------- Small helper text ---------- */
+.subtle{
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.muted{ color: var(--muted); }
+
+/* ---------- Trip status bar ---------- */
+.statusbar{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.statusitem{
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.statusitem .label{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.statusitem .value{
+  margin-top: 4px;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+/* ---------- Controls ---------- */
+.controls{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.toggle span{
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.toggle input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+/* Buttons (index.html uses .primary / .secondary) */
+button{
+  font: inherit;
+}
+
+.primary,
+.secondary{
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+
+.primary{
+  background: rgba(187,0,255,0.18);
+  border-color: rgba(187,0,255,0.35);
+}
+
+.primary:hover,
+.secondary:hover{
+  background: rgba(255,255,255,0.10);
+  transform: translateY(-1px);
+}
+
+.primary:disabled,
+.secondary:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.secondary{
+  background: rgba(255,255,255,0.06);
+}
+
+/* ---------- Summary grid ---------- */
+.summarygrid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.summarycard{
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.summarycard .label{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.summarycard .value{
+  margin-top: 4px;
+  font-weight: 900;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* app.js toggles this on #longest-leg */
+#longest-leg.is-bad{ color: var(--danger); }
+
+/* ---------- Optimization summary card ---------- */
+.opt-summary{
+  margin-top: 10px;
+}
+
+.optcard{
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.optcard__title{
+  font-weight: 900;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.optcard__grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.optcard__grid .k{
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.optcard__grid .v{
+  display: block;
+  margin-top: 2px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.optcard__small{
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: rgba(234,234,234,0.88);
+}
+
+/* ---------- Violations ---------- */
+.violations{
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px dashed rgba(255,255,255,0.18);
+}
+
+.violations__list{
+  display: grid;
+  gap: 10px;
+}
+
+.violations__item{
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.violations__item .dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--danger);
+  margin-top: 3px;
+}
+
+.violations__item .txt{
+  color: rgba(234,234,234,0.90);
+  font-size: 13px;
+}
+
+.empty{
+  padding: 10px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- Itinerary ---------- */
+.itinerary__header{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.itinerary__list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itin-row{
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  outline: none;
+}
+
+.itin-row:hover{
+  background: rgba(255,255,255,0.09);
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.itin-row:focus-visible{
+  box-shadow: 0 0 0 3px rgba(187,0,255,0.18);
+  border-color: rgba(187,0,255,0.45);
+}
+
+.itin-row.is-selected{
+  background: rgba(187,0,255,0.14);
+  border-color: rgba(187,0,255,0.40);
+  box-shadow: inset 3px 0 0 rgba(187,0,255,0.95);
+}
+
+.itin-row__num{
+  width: 34px;
+  height: 28px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.itin-row__main{ min-width: 0; }
+
+.itin-row__leg{
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itin-row__metrics{
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: rgba(234,234,234,0.88);
+}
+
+/* ---------- Form (Day-by-Day) ---------- */
+.form-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field{
+  display: grid;
+  gap: 6px;
+}
+
+.field label{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+input[type="time"],
+input[type="number"]{
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.22);
+  color: var(--text);
+  outline: none;
+}
+
+input[type="time"]:focus,
+input[type="number"]:focus{
+  border-color: rgba(187,0,255,0.55);
+  box-shadow: 0 0 0 3px rgba(187,0,255,0.15);
+}
+
+/* app.js may add .is-warning on #max-leg-hours */
+.is-warning{
+  outline: 2px solid var(--warn);
+  background: rgba(255,152,0,0.08);
+}
+
+/* ---------- Day plan ---------- */
+#dayplan{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.daycard{
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 12px;
+}
+
+.daycard__top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.daycard__title{
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.daycard__meta{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chip{
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(234,234,234,0.90);
+}
+
+.daycard__body{
+  display: grid;
+  gap: 6px;
+}
+
+.dayleg{
+  font-size: 12.5px;
+  color: rgba(234,234,234,0.90);
+}
+
+/* ---------- Map numbered marker (app.js creates .park-marker + .park-marker__badge) ---------- */
+.park-marker{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(187,0,255,0.85);
+  border: 2px solid rgba(255,255,255,0.85);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+}
+
+.park-marker__badge{
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.park-marker.is-locked{
+  background: rgba(30,144,255,0.85);
+}
+
+/* ---------- Routing state (app.js toggles body.is-routing) ---------- */
+body.is-routing{
+  cursor: progress;
+}
+
+/* Show a subtle “updating” pill at bottom of sidebar while routing */
+body.is-routing #sidebar::after{
+  content: "Updating route…";
+  position: sticky;
+  bottom: 10px;
+  display: block;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.28);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(234,234,234,0.88);
+  font-size: 12.5px;
+  backdrop-filter: blur(10px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px){
+  .app{ grid-template-columns: 360px 1fr; }
+}
+
+@media (max-width: 900px){
+  .app{
+    grid-template-columns: 1fr;
+    grid-template-rows: 52vh 48vh;
+  }
+
+  #sidebar{
+    order: 2;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.10);
+  }
+
+  .map-wrap{
+    order: 1;
+    height: 52vh;
+  }
+}
+
+@media (max-width: 420px){
+  .itin-row{ grid-template-columns: 30px 1fr; }
+  .itin-row__metrics{ display: none; }
+  .form-grid{ grid-template-columns: 1fr; }
+}
+
+/* ---------- Park info card (map overlay) ---------- */
+.park-card{
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  width: min(420px, calc(100% - 32px));
+  background: linear-gradient(160deg, rgba(18,24,35,0.97), rgba(11,15,20,0.97));
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  backdrop-filter: blur(16px);
+  padding: 18px 18px 16px;
+  z-index: 10;
+  /* entry animation */
+  animation: parkCardIn 220ms cubic-bezier(0.22,1,0.36,1);
+}
+
+@keyframes parkCardIn{
+  from{ opacity:0; transform: translateX(-50%) translateY(16px); }
+  to  { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+
+.park-card__header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.park-card__title-wrap{
+  min-width: 0;
+}
+
+.park-card__state{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+
+.park-card__name{
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.park-card__close{
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.park-card__close:hover{
+  background: rgba(255,255,255,0.12);
+  color: var(--text);
+}
+
+.park-card__desc{
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.park-card__meta{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.park-card__meta-item{
+  padding: 9px 11px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  min-width: 0;
+}
+
+.park-card__meta-item.is-loading .park-card__meta-value{
+  opacity: 0.45;
+}
+
+.park-card__meta-label{
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.park-card__meta-value{
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.park-card__actions{
+  display: flex;
+  gap: 8px;
+}
+
+.park-card__add{
+  flex: 1;
+  text-align: center;
+}
+
+.park-card__add.is-added{
+  background: rgba(0,255,102,0.14);
+  border-color: rgba(0,255,102,0.35);
+  color: var(--good);
+}
+
+.park-card__nps-link{
+  flex: 1;
+  text-align: center;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 900;
+  font-size: inherit;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.park-card__nps-link:hover{
+  background: rgba(255,255,255,0.10);
+}
+
+/* ---------- Stops list ---------- */
+.stops__header{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.stops-list{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stop-row{
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: background 140ms ease;
+}
+
+.stop-row:hover{
+  background: rgba(255,255,255,0.08);
+}
+
+.stop-row__num{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 11px;
+  background: rgba(187,0,255,0.20);
+  border: 1px solid rgba(187,0,255,0.45);
+  color: #dd77ff;
+  flex-shrink: 0;
+}
+
+.stop-row__info{
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.stop-row__name{
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stop-row__must-see-label{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.stop-row__must-see{
+  width: 14px;
+  height: 14px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.stop-row__must-see-text{
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  user-select: none;
+}
+
+.stop-row__remove{
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.stop-row__remove:hover{
+  background: rgba(255,77,77,0.18);
+  border-color: rgba(255,77,77,0.45);
+  color: var(--danger);
+}
+
+/* Closure / seasonal badge on stop name */
+.stop-badge{
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+
+.stop-badge--closed{
+  background: rgba(255,152,0,0.18);
+  border: 1px solid rgba(255,152,0,0.45);
+  color: var(--warn);
+}
+
+/* ---------- Day plan notice banner ---------- */
+.dayplan-notice{
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(30,144,255,0.10);
+  border: 1px solid rgba(30,144,255,0.30);
+  font-size: 13px;
+  color: rgba(234,234,234,0.90);
+}
+
+.dayplan-notice__icon{
+  font-weight: 900;
+  color: var(--accent);
+  flex-shrink: 0;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+/* Violations dot colour overrides by type */
+.violations__item[data-type="closed"] .dot{
+  background: var(--warn);
+}
+
+.violations__item[data-type="backtrack"] .dot{
+  background: var(--warn);
+}
+
+.violations__item[data-type="window"] .dot,
+.violations__item[data-type="days"] .dot{
+  background: var(--warn);
+}
+
+/* ---------- Passport Stamp Layer Toggles ---------- */
+.layer-desc{
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.layer-toggles{
+  gap: 8px;
+}
+
+.layer-toggle .layer-toggle__label{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Coloured dot legend swatch */
+.layer-dot{
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+
+.layer-dot--np   { background: #bb00ff; }
+.layer-dot--ss   { background: #00d4c8; }
+.layer-dot--other{ background: #ffb300; }
+
+/* Count chip inline with label */
+.layer-count{
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+}
+
+/* ---------- Stamp Tooltip (map overlay) ---------- */
+.stamp-tooltip{
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  display: none;
+  max-width: 260px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(10,14,22,0.94);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+}
+
+.stamp-tooltip__name{
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+
+.stamp-tooltip__meta{
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.stamp-tooltip__region{
+  font-size: 11px;
+  color: rgba(187,0,255,0.85);
+  font-weight: 800;
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* =============================================================
+   ORIGIN SYSTEM
+============================================================= */
+
+/* Pulsing green dot rendered on the map for the trip origin */
+.origin-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--good, #00ff66);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.6);
+  animation: origin-pulse 2s infinite;
+  cursor: default;
+}
+
+@keyframes origin-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(0, 255, 102, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(0, 255, 102, 0);   }
+  100% { box-shadow: 0 0 0 0   rgba(0, 255, 102, 0);   }
+}
+
+/* Origin display row */
+.origin-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.origin-label {
+  font-size: 13px;
+  flex: 1;
+}
+
+.origin-label--set {
+  color: var(--good, #00ff66);
+  font-weight: 600;
+}
+
+.origin-label--none,
+.origin-label--pending {
+  color: var(--muted, #888);
+}
+
+.origin-clear {
+  background: none;
+  border: none;
+  color: var(--danger, #ff4d4d);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.origin-clear:hover { opacity: 1; }
+
+/* Origin geocoder input + dropdown */
+.origin-input-wrap {
+  position: relative;
+}
+
+.origin-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--text, #f0f0f0);
+  padding: 7px 10px;
+  font-size: 13px;
+  transition: border-color 0.15s;
+}
+
+.origin-input:focus {
+  outline: none;
+  border-color: var(--accent, #1e90ff);
+}
+
+.origin-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.origin-result {
+  padding: 9px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.origin-result:last-child { border-bottom: none; }
+
+.origin-result:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+

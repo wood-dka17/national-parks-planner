@@ -1,0 +1,67 @@
+name: Build NPS Data
+
+on:
+  # Manual trigger — run whenever you want to refresh park data or drive matrix
+  workflow_dispatch:
+    inputs:
+      rebuild_matrix:
+        description: "Rebuild drive matrix (slow, costs Mapbox API calls)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+  # Monthly refresh of NPS park data (matrix is skipped unless manually triggered)
+  schedule:
+    - cron: "0 6 1 * *"  # 6am UTC on the 1st of each month
+
+  # Also run when build scripts themselves change
+  push:
+    paths:
+      - "scripts/build_nps_data.mjs"
+      - "scripts/build_drive_matrix.mjs"
+
+permissions:
+  contents: write  # needed to commit updated JSON files back to the repo
+
+jobs:
+  build-nps-data:
+    name: Refresh NPS park + stamp data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Inject Mapbox runtime token into config.js
+        run: |
+          sed -i 's|mapboxToken: ""|mapboxToken: "${{ secrets.MAPBOX_TOKEN_PUBLIC }}"|' docs/js/config.js
+
+      - name: Run NPS data build script
+        env:
+          NPS_API_KEY: ${{ secrets.NPS_API_KEY }}
+        run: node scripts/build_nps_data.mjs
+
+      - name: Build drive matrix (optional, manual only)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.rebuild_matrix == 'true' }}
+        env:
+          MAPBOX_TOKEN_BUILD: ${{ secrets.MAPBOX_TOKEN_BUILD }}
+        run: node scripts/build_drive_matrix.mjs
+
+      - name: Commit updated data files (if changed)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/
+          # Only commit if there are actual changes
+          git diff --cached --quiet || git commit -m "chore: refresh NPS data [skip ci]"
+          git push

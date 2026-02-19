@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# Environment — NEVER commit these
+.env
+.env.*
+*.env
+
+# Local dev token override — real token lives here locally, never committed
+docs/js/config.local.js
+
+# Build secrets — NEVER commit these
+# (actual secrets live in GitHub Actions secrets, not files)
+secrets.json
+.secrets
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Local dev notes
+*.local.md
+scratch/
+
+# R / RStudio artifacts
+.Rhistory
+.Rdata
+.Rproj.user
+
+# Root-level source files (canonical source is now in docs/)
+# Keeping these commented so they're not accidentally re-added.
+# If you want to delete them: rm index.html style.css app.js parks.js nps.js nps-stamps.js

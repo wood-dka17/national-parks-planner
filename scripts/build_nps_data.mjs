@@ -1,0 +1,231 @@
+#!/usr/bin/env node
+/**
+ * build_nps_data.mjs
+ * Build-time script: fetches NPS park + stamp data and writes static JSON
+ * into docs/data/ so the runtime app never needs to call the NPS API.
+ *
+ * Usage:
+ *   NPS_API_KEY=<your_key> node scripts/build_nps_data.mjs
+ *
+ * Outputs:
+ *   docs/data/parks.json      — 63 national parks (slim fields)
+ *   docs/data/units.json      — all 474 NPS passport stamp units
+ *   docs/data/meta.json       — build date + content hash for cache busting
+ *
+ * The NPS_API_KEY is read from the environment only — never committed.
+ * In GitHub Actions it comes from the NPS_API_KEY repository secret.
+ */
+
+import { createHash } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT      = resolve(__dirname, "..");
+const OUT_DIR   = resolve(ROOT, "docs", "data");
+
+const NPS_KEY  = process.env.NPS_API_KEY;
+const NPS_BASE = "https://developer.nps.gov/api/v1";
+
+if (!NPS_KEY) {
+  console.error("ERROR: NPS_API_KEY environment variable is not set.");
+  console.error("  Usage: NPS_API_KEY=<key> node scripts/build_nps_data.mjs");
+  process.exit(1);
+}
+
+/* ─── helpers ─────────────────────────────────────────────────── */
+
+async function npsGet(endpoint, params = {}) {
+  const url = new URL(`${NPS_BASE}/${endpoint}`);
+  url.searchParams.set("api_key", NPS_KEY);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`NPS ${endpoint} → HTTP ${res.status}`);
+  return res.json();
+}
+
+/** Fetch all pages of an NPS endpoint (limit/start pagination). */
+async function npsGetAll(endpoint, extraParams = {}) {
+  const limit = 50;
+  let start = 0;
+  let total = Infinity;
+  const items = [];
+
+  while (start < total) {
+    const json = await npsGet(endpoint, { ...extraParams, limit, start });
+    total = parseInt(json.total ?? "0", 10);
+    items.push(...(json.data ?? []));
+    start += limit;
+    if (json.data?.length === 0) break;
+  }
+
+  return items;
+}
+
+function sha256(obj) {
+  return createHash("sha256").update(JSON.stringify(obj)).digest("hex").slice(0, 12);
+}
+
+/* ─── NPS Passport stamp region lookup (state → region) ──────── */
+const STATE_TO_PASSPORT = {
+  ME:"North Atlantic", NH:"North Atlantic", VT:"North Atlantic",
+  MA:"North Atlantic", RI:"North Atlantic", CT:"North Atlantic",
+  NY:"North Atlantic", NJ:"North Atlantic",
+  PA:"Mid-Atlantic", MD:"Mid-Atlantic", DE:"Mid-Atlantic",
+  VA:"Mid-Atlantic", WV:"Mid-Atlantic",
+  DC:"National Capital",
+  NC:"Southeast", SC:"Southeast", GA:"Southeast",
+  FL:"Southeast", AL:"Southeast", MS:"Southeast",
+  TN:"Southeast", KY:"Southeast", AR:"Southeast",
+  OH:"Midwest", MI:"Midwest", IN:"Midwest",
+  WI:"Midwest", MN:"Midwest", IL:"Midwest",
+  MO:"Midwest", IA:"Midwest",
+  ND:"Midwest", SD:"Midwest", NE:"Midwest",
+  KS:"Midwest",
+  TX:"Southwest", OK:"Southwest", NM:"Southwest",
+  AZ:"Southwest", CO:"Southwest",
+  UT:"Rocky Mountain", WY:"Rocky Mountain",
+  MT:"Rocky Mountain", ID:"Rocky Mountain",
+  WA:"Pacific Northwest & Alaska", OR:"Pacific Northwest & Alaska",
+  AK:"Pacific Northwest & Alaska",
+  CA:"Western", NV:"Western", HI:"Western",
+  PR:"Southeast", VI:"Southeast", GU:"Pacific", AS:"Pacific",
+  MP:"Pacific",
+};
+
+function passportRegion(statesStr) {
+  if (!statesStr) return "Other";
+  const codes = statesStr.split(",").map((s) => s.trim());
+  return STATE_TO_PASSPORT[codes[0]] ?? "Other";
+}
+
+/* ─── main ────────────────────────────────────────────────────── */
+
+async function main() {
+  await mkdir(OUT_DIR, { recursive: true });
+  console.log(`Writing data to: ${OUT_DIR}`);
+
+  /* ── 1. Fetch all NPS parks ──────────────────────────────────── */
+  console.log("Fetching NPS parks list…");
+  const allUnits = await npsGetAll("parks", { fields: "entranceFees,addresses" });
+  console.log(`  → ${allUnits.length} total NPS units`);
+
+  /* ── 2. Identify national park designation set ───────────────── */
+  const NP_DESIGNATIONS = new Set([
+    "National Park", "National Park & Preserve",
+    "National Park and Preserve", "National Preserve",
+    "National Reserve",
+  ]);
+  const NS_DESIGNATIONS = new Set([
+    "National Seashore", "National Lakeshore",
+  ]);
+
+  /* ── 3. Build passport stamp units list (all 474) ────────────── */
+  console.log("Building units.json…");
+  const stampUnits = allUnits
+    .filter((u) => {
+      const lat = parseFloat(u.latitude);
+      const lon = parseFloat(u.longitude);
+      return Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0);
+    })
+    .map((u) => {
+      const designation = u.designation || "Other";
+      let layer = "other";
+      if (NP_DESIGNATIONS.has(designation))  layer = "national-park";
+      else if (NS_DESIGNATIONS.has(designation)) layer = "national-seashore";
+
+      return {
+        name:          u.fullName,
+        parkCode:      u.parkCode,
+        designation,
+        layer,
+        lat:           parseFloat(u.latitude),
+        lon:           parseFloat(u.longitude),
+        states:        u.states,
+        url:           u.url,
+        passportRegion: passportRegion(u.states),
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  /* ── 4. Build slim parks.json (63 national parks) ───────────── */
+  console.log("Building parks.json…");
+  const parks = stampUnits
+    .filter((u) => u.layer === "national-park")
+    .map((u, i) => ({
+      id:          i,                   // numeric index for Mapbox feature-state
+      name:        u.name,
+      parkCode:    u.parkCode,
+      state:       u.states,
+      lat:         u.lat,
+      lon:         u.lon,
+      url:         u.url,
+      designation: u.designation,
+    }));
+
+  /* ── 5. Fetch visitor center coords and merge into parks ────── */
+  console.log("Fetching visitor center coordinates…");
+  const parkCodes = parks.map((p) => p.parkCode);
+  const vcByCode  = new Map();
+
+  for (let i = 0; i < parkCodes.length; i += 50) {
+    const batch = parkCodes.slice(i, i + 50);
+    try {
+      const json = await npsGet("visitorcenters", {
+        parkCode: batch.join(","),
+        limit: 50,
+        fields: "latLong",
+      });
+      for (const vc of (json.data ?? [])) {
+        const code = vc.parkCode?.toLowerCase();
+        if (!code || vcByCode.has(code)) continue;
+        const lat = parseFloat(vc.latitude);
+        const lon = parseFloat(vc.longitude);
+        if (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {
+          vcByCode.set(code, { lat, lon, visitorCenterName: vc.name ?? "" });
+        }
+      }
+    } catch (e) {
+      console.warn("  VC batch failed:", e.message);
+    }
+  }
+
+  let vcUpdated = 0;
+  for (const park of parks) {
+    const vc = vcByCode.get(park.parkCode?.toLowerCase());
+    if (vc) {
+      park.lat = vc.lat;
+      park.lon = vc.lon;
+      park.visitorCenterName = vc.visitorCenterName;
+      vcUpdated++;
+    }
+  }
+  console.log(`  → Visitor center coords for ${vcUpdated}/${parks.length} parks`);
+
+  /* ── 6. Write files ─────────────────────────────────────────── */
+  const meta = {
+    builtAt:      new Date().toISOString(),
+    parksCount:   parks.length,
+    unitsCount:   stampUnits.length,
+    parksHash:    sha256(parks),
+    unitsHash:    sha256(stampUnits),
+  };
+
+  await Promise.all([
+    writeFile(resolve(OUT_DIR, "parks.json"),  JSON.stringify(parks,      null, 2), "utf8"),
+    writeFile(resolve(OUT_DIR, "units.json"),  JSON.stringify(stampUnits, null, 2), "utf8"),
+    writeFile(resolve(OUT_DIR, "meta.json"),   JSON.stringify(meta,       null, 2), "utf8"),
+  ]);
+
+  console.log(`\n✅ Done.`);
+  console.log(`   parks.json  → ${parks.length} parks`);
+  console.log(`   units.json  → ${stampUnits.length} stamp units`);
+  console.log(`   meta.json   → built ${meta.builtAt}`);
+}
+
+main().catch((err) => {
+  console.error("build_nps_data failed:", err);
+  process.exit(1);
+});

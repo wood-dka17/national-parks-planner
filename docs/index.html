@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>National Parks Planner</title>
+
+    <!-- Mapbox GL CSS -->
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <noscript>
+      <div style="padding:16px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+        This app requires JavaScript to run.
+      </div>
+    </noscript>
+
+    <div class="app" id="app">
+      <!-- Sidebar -->
+      <aside id="sidebar" role="complementary" aria-label="Trip planner sidebar">
+        <header class="app-header">
+          <h1>National Parks Planner</h1>
+          <p>Search or click parks on the map to build a route.</p>
+
+          <!-- Park search -->
+          <div class="search-wrap">
+            <input
+              id="park-search"
+              type="search"
+              placeholder="Search parks by name or state…"
+              autocomplete="off"
+              aria-label="Search parks"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="search-results"
+            />
+            <div
+              id="search-results"
+              class="search-results is-hidden"
+              role="listbox"
+              aria-label="Park search results"
+            ></div>
+          </div>
+
+          <div class="mode-tabs" role="tablist" aria-label="Planner mode">
+            <button
+              id="mode-planner"
+              class="is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="planner-view"
+            >
+              Planner
+            </button>
+            <button
+              id="mode-daybyday"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="daybyday-view"
+            >
+              Day-by-Day
+            </button>
+          </div>
+        </header>
+
+        <!-- PLANNER VIEW -->
+        <section class="section" id="planner-view" role="tabpanel" aria-label="Planner view">
+          <h2>Trip Status</h2>
+
+          <div class="statusbar" aria-label="Trip status">
+            <div class="statusitem">
+              <div class="label">Mode</div>
+              <div class="value" id="status-mode">Manual</div>
+            </div>
+            <div class="statusitem">
+              <div class="label">Trip</div>
+              <div class="value" id="status-trip">One-way</div>
+            </div>
+            <div class="statusitem">
+              <div class="label">Selected</div>
+              <div class="value">
+                <span id="status-count">0</span> parks
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Controls</h2>
+            <div class="controls">
+              <label class="toggle" for="optimize">
+                <span>Optimize order</span>
+                <input id="optimize" type="checkbox" />
+              </label>
+
+              <label class="toggle" for="roundtrip">
+                <span>Round trip</span>
+                <input id="roundtrip" type="checkbox" />
+              </label>
+
+              <label class="toggle" for="show-boundaries">
+                <span>Show park boundaries</span>
+                <input id="show-boundaries" type="checkbox" />
+              </label>
+
+              <button id="clear" class="secondary" type="button">Clear</button>
+            </div>
+          </div>
+
+          <!-- Passport Stamp Layer Toggles -->
+          <div class="section">
+            <h2>Passport Stamp Locations</h2>
+            <p class="layer-desc">Show NPS Passport cancellation locations on the map.</p>
+            <div class="controls layer-toggles">
+              <label class="toggle layer-toggle" for="layer-national-parks">
+                <span class="layer-toggle__label">
+                  <span class="layer-dot layer-dot--np"></span>
+                  National Parks <span class="layer-count" id="count-national-parks"></span>
+                </span>
+                <input id="layer-national-parks" type="checkbox" checked />
+              </label>
+
+              <label class="toggle layer-toggle" for="layer-seashores">
+                <span class="layer-toggle__label">
+                  <span class="layer-dot layer-dot--ss"></span>
+                  National Seashores <span class="layer-count" id="count-seashores"></span>
+                </span>
+                <input id="layer-seashores" type="checkbox" />
+              </label>
+
+              <label class="toggle layer-toggle" for="layer-other-stamps">
+                <span class="layer-toggle__label">
+                  <span class="layer-dot layer-dot--other"></span>
+                  All Other Stamp Locations <span class="layer-count" id="count-other-stamps"></span>
+                </span>
+                <input id="layer-other-stamps" type="checkbox" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Trip Origin -->
+          <div class="section" id="origin-section">
+            <h2>Trip Origin</h2>
+            <div id="origin-display" class="origin-display">
+              <span id="origin-label" class="origin-label origin-label--pending">Detecting location…</span>
+              <button id="origin-clear" class="origin-clear is-hidden" type="button" title="Clear origin">✕</button>
+            </div>
+            <div class="origin-input-wrap">
+              <input
+                id="origin-input"
+                type="text"
+                class="origin-input"
+                placeholder="Or type a starting location…"
+                autocomplete="off"
+              />
+              <div id="origin-results" class="origin-results is-hidden"></div>
+            </div>
+          </div>
+
+          <!-- Selected Stops list -->
+          <div class="section">
+            <div class="stops__header">
+              <h2 style="margin:0;">Stops</h2>
+              <div class="subtle">Click × to remove a stop</div>
+            </div>
+            <div id="stops-list" class="stops-list" aria-label="Selected stops list"></div>
+          </div>
+
+          <div class="section">
+            <h2>Summary</h2>
+
+            <div class="summarygrid" aria-label="Trip summary">
+              <div class="summarycard">
+                <div class="label">Total miles</div>
+                <div class="value" id="total-miles">0.0 mi</div>
+              </div>
+
+              <div class="summarycard">
+                <div class="label">Total drive hours</div>
+                <div class="value" id="total-hours">0.0 hr</div>
+              </div>
+
+              <div class="summarycard">
+                <div class="label">Required trip days</div>
+                <div class="value" id="total-days">—</div>
+              </div>
+
+              <div class="summarycard">
+                <div class="label">Longest leg</div>
+                <div class="value" id="longest-leg">—</div>
+              </div>
+            </div>
+
+            <div class="opt-summary" id="opt-summary" aria-live="polite"></div>
+          </div>
+
+          <div class="section">
+            <h2>Issues to Fix</h2>
+            <div class="violations" id="violations" aria-live="polite">
+              <div class="empty">No issues yet. Build a route to see checks.</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="itinerary__header">
+              <h2 style="margin: 0;">Itinerary</h2>
+              <div class="subtle">Click a leg to highlight</div>
+            </div>
+            <div class="itinerary__list" id="itinerary-list" aria-label="Itinerary list"></div>
+          </div>
+
+          <div class="section">
+            <h2>Export</h2>
+            <div class="controls">
+              <button id="export-csv" class="secondary" type="button" disabled>
+                Download day plan CSV
+              </button>
+              <button id="copy-brief" class="secondary" type="button" disabled>
+                Copy trip brief
+              </button>
+              <div class="subtle">
+                Exports include trip rules (max hours/day, max leg hours, breaks, speed) and generated schedule.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DAY-BY-DAY VIEW -->
+        <section
+          class="section is-hidden"
+          id="daybyday-view"
+          role="tabpanel"
+          aria-label="Day-by-day view"
+        >
+          <h2>Driving Window</h2>
+          <div class="form-grid" aria-label="Driving window form">
+            <div class="field">
+              <label for="wake-time">Wake / depart by</label>
+              <input id="wake-time" type="time" value="08:00" />
+            </div>
+            <div class="field">
+              <label for="sleep-time">Arrive by / sleep</label>
+              <input id="sleep-time" type="time" value="20:00" />
+            </div>
+            <div class="field">
+              <label for="max-hours">Max driving hours/day</label>
+              <input id="max-hours" type="number" min="1" step="0.5" value="6" />
+            </div>
+            <div class="field">
+              <label for="break-mins">Break minutes/day</label>
+              <input id="break-mins" type="number" min="0" step="5" value="0" />
+            </div>
+            <!-- keep start-time as a hidden alias so legacy code still works -->
+            <input id="start-time" type="hidden" value="08:00" />
+          </div>
+
+          <h2 style="margin-top:14px;">Route Constraints</h2>
+          <div class="form-grid" aria-label="Route constraint form">
+            <div class="field">
+              <label for="max-leg-hours">Max single-leg hours</label>
+              <input id="max-leg-hours" type="number" min="1" step="0.5" value="10" />
+            </div>
+            <div class="field">
+              <label for="speed-mph">Driving speed (mph)</label>
+              <input id="speed-mph" type="number" min="10" step="1" value="55" />
+            </div>
+            <div class="field">
+              <label for="travel-month">Travel month</label>
+              <select id="travel-month">
+                <option value="0">Any month</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <div class="field field--full">
+              <label class="toggle" for="no-backtracking">
+                <span>No backtracking</span>
+                <input id="no-backtracking" type="checkbox" />
+              </label>
+            </div>
+            <div class="field field--full">
+              <label class="toggle" for="filter-closed">
+                <span>Warn about seasonal closures</span>
+                <input id="filter-closed" type="checkbox" checked />
+              </label>
+            </div>
+          </div>
+
+          <button id="auto-schedule" class="primary" type="button" disabled>
+            Generate day plan
+          </button>
+
+          <h2 style="margin-top: 16px;">Schedule</h2>
+          <div id="dayplan" aria-label="Generated schedule"></div>
+        </section>
+      </aside>
+
+      <!-- Map -->
+      <main class="map-wrap" role="main" aria-label="Map panel">
+        <div id="map" class="map" aria-label="Map"></div>
+
+        <!-- Park info card (slides up over the map when a park dot is clicked) -->
+        <div id="park-card" class="park-card is-hidden" role="dialog" aria-label="Park information">
+          <div class="park-card__header">
+            <div class="park-card__title-wrap">
+              <div class="park-card__state" id="park-card-state"></div>
+              <h2 class="park-card__name" id="park-card-name"></h2>
+            </div>
+            <button class="park-card__close" id="park-card-close" type="button" aria-label="Close park info">✕</button>
+          </div>
+
+          <p class="park-card__desc" id="park-card-desc"></p>
+
+          <div class="park-card__meta" id="park-card-meta">
+            <div class="park-card__meta-item" id="park-card-fee">
+              <span class="park-card__meta-label">Entrance fee</span>
+              <span class="park-card__meta-value" id="park-card-fee-val">—</span>
+            </div>
+            <div class="park-card__meta-item" id="park-card-hours">
+              <span class="park-card__meta-label">Visitor center hours</span>
+              <span class="park-card__meta-value" id="park-card-hours-val">—</span>
+            </div>
+            <!-- Stamp-mode fields (hidden in park mode) -->
+            <div class="park-card__meta-item is-hidden" id="park-card-designation">
+              <span class="park-card__meta-label">Designation</span>
+              <span class="park-card__meta-value" id="park-card-designation-val">—</span>
+            </div>
+            <div class="park-card__meta-item is-hidden" id="park-card-passport">
+              <span class="park-card__meta-label">Passport Region</span>
+              <span class="park-card__meta-value" id="park-card-passport-val">—</span>
+            </div>
+          </div>
+
+          <div class="park-card__actions">
+            <button class="park-card__add primary" id="park-card-add" type="button">Add to trip</button>
+            <a class="park-card__nps-link secondary" id="park-card-link" href="#" target="_blank" rel="noopener noreferrer">NPS page ↗</a>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Libraries (order matters: Mapbox + Turf before app.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+    <!-- Config: token + base path (must load before app.js) -->
+    <script src="./js/config.js"></script>
+    <!-- Local dev token override — gitignored, not present in production (silently skipped) -->
+    <script src="./js/config.local.js" onerror="0"></script>
+
+    <!-- Bundled fallback data (used when docs/data/ JSON not yet built) -->
+    <script src="./js/parks.js"></script>
+    <script src="./js/nps-stamps.js"></script>
+
+    <!-- App (nps.js runtime NPS fetch removed — data comes from docs/data/*.json) -->
+    <script src="./js/app.js"></script>
+  </body>
+</html>

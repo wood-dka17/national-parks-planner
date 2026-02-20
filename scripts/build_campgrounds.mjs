@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * build_campgrounds.mjs
+ * build_campgrounds.mjs — v2 (NPS campgrounds + USFS campgrounds + NPS lodges)
  * Build-time script: fetches campground data from Recreation.gov (RIDB API)
  * for NPS units and National Forests, then writes static GeoJSON to
  * docs/data/campgrounds.json for the runtime app to consume.

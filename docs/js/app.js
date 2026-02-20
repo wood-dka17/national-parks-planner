@@ -1973,10 +1973,10 @@ async function renderAccommodationsList() {
   }
 
   // Build list of stop coords from selectedParks
-  const stopCoords = selectedParks.map((p) => {
-    const park = PARKS_DATA?.[p];
-    return park ? [park.lon ?? park.lng, park.lat] : null;
-  }).filter(Boolean);
+  // Each selectedParks item is { id, name, coords:[lon,lat], locked, source }
+  const stopCoords = selectedParks
+    .map((p) => (Array.isArray(p.coords) ? p.coords : null))
+    .filter(Boolean);
 
   const RADIUS_KM = 80;
 
@@ -2132,14 +2132,14 @@ function openStampCard(stamp) {
   document.getElementById("park-card-designation")?.classList.remove("is-hidden");
   document.getElementById("park-card-passport")?.classList.remove("is-hidden");
 
-  // Populate fields
-  document.getElementById("park-card-name").textContent  = stamp.name;
-  document.getElementById("park-card-state").textContent = stamp.states ?? "";
-  document.getElementById("park-card-desc").textContent  = stamp.designation;
-  document.getElementById("park-card-designation-val").textContent = stamp.designation;
-  document.getElementById("park-card-passport-val").textContent    = stamp.passportRegion ?? "—";
-  document.getElementById("park-card-link").href =
-    `https://www.nps.gov/${stamp.parkCode}/index.htm`;
+  // Populate fields (guard with ?. — these sidebar card elements may not exist in all layouts)
+  document.getElementById("park-card-name")?.textContent  = stamp.name;
+  document.getElementById("park-card-state")?.textContent = stamp.states ?? "";
+  document.getElementById("park-card-desc")?.textContent  = stamp.designation;
+  document.getElementById("park-card-designation-val")?.textContent = stamp.designation;
+  document.getElementById("park-card-passport-val")?.textContent    = stamp.passportRegion ?? "—";
+  const _stampLinkEl = document.getElementById("park-card-link");
+  if (_stampLinkEl) _stampLinkEl.href = `https://www.nps.gov/${stamp.parkCode}/index.htm`;
 
   const stampId     = `stamp:${stamp.parkCode}`;
   const alreadyAdded = selectedParks.some((p) => p.id === stampId);

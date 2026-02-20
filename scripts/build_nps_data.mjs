@@ -46,6 +46,30 @@ async function npsGet(endpoint, params = {}) {
   return res.json();
 }
 
+/** Extract the best entrance fee from the NPS entranceFees array. */
+function parseBestFee(entranceFees) {
+  if (!Array.isArray(entranceFees) || !entranceFees.length) return {};
+  // Prefer the "per vehicle" fee, else take the first non-zero, else first entry
+  const perVehicle = entranceFees.find((f) =>
+    /vehicle/i.test(f.title) || /vehicle/i.test(f.description)
+  );
+  const nonZero = entranceFees.find((f) => Number(f.cost) > 0);
+  const chosen  = perVehicle ?? nonZero ?? entranceFees[0];
+  return {
+    entranceFee:     Number(chosen.cost ?? 0),
+    entranceFeeDesc: chosen.title || chosen.description || "",
+  };
+}
+
+/** Summarise operating hours for display. Returns a short string or null. */
+function parseOperatingHours(operatingHours) {
+  if (!Array.isArray(operatingHours) || !operatingHours.length) return null;
+  const first = operatingHours[0];
+  const desc  = first.description?.trim();
+  // Truncate to 120 chars to keep parks.json slim
+  return desc ? desc.slice(0, 120) + (desc.length > 120 ? "…" : "") : null;
+}
+
 /** Fetch all pages of an NPS endpoint (limit/start pagination). */
 async function npsGetAll(endpoint, extraParams = {}) {
   const limit = 50;
@@ -109,7 +133,7 @@ async function main() {
 
   /* ── 1. Fetch all NPS parks ──────────────────────────────────── */
   console.log("Fetching NPS parks list…");
-  const allUnits = await npsGetAll("parks", { fields: "entranceFees,addresses" });
+  const allUnits = await npsGetAll("parks", { fields: "entranceFees,operatingHours,description,addresses" });
   console.log(`  → ${allUnits.length} total NPS units`);
 
   /* ── 2. Identify national park designation set ───────────────── */
@@ -152,18 +176,36 @@ async function main() {
 
   /* ── 4. Build slim parks.json (63 national parks) ───────────── */
   console.log("Building parks.json…");
+
+  // Build a lookup from parkCode → raw NPS unit so we can pull extra fields
+  const rawByCode = new Map(allUnits.map((u) => [u.parkCode, u]));
+
   const parks = stampUnits
     .filter((u) => u.layer === "national-park")
-    .map((u, i) => ({
-      id:          i,                   // numeric index for Mapbox feature-state
-      name:        u.name,
-      parkCode:    u.parkCode,
-      state:       u.states,
-      lat:         u.lat,
-      lon:         u.lon,
-      url:         u.url,
-      designation: u.designation,
-    }));
+    .map((u, i) => {
+      const raw = rawByCode.get(u.parkCode) ?? {};
+      const { entranceFee, entranceFeeDesc } = parseBestFee(raw.entranceFees);
+      const operatingHours = parseOperatingHours(raw.operatingHours);
+      // Trim description to 300 chars for the park card
+      const description = raw.description
+        ? raw.description.replace(/<[^>]*>/g, "").trim().slice(0, 300) +
+          (raw.description.length > 300 ? "…" : "")
+        : "";
+      return {
+        id:              i,       // numeric index for Mapbox feature-state
+        name:            u.name,
+        parkCode:        u.parkCode,
+        state:           u.states,
+        lat:             u.lat,
+        lon:             u.lon,
+        url:             u.url,
+        designation:     u.designation,
+        description:     description     || undefined,
+        entranceFee:     entranceFee     ?? undefined,
+        entranceFeeDesc: entranceFeeDesc || undefined,
+        operatingHours:  operatingHours  || undefined,
+      };
+    });
 
   /* ── 5. Fetch visitor center coords and merge into parks ────── */
   console.log("Fetching visitor center coordinates…");

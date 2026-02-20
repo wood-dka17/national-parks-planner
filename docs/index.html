@@ -111,6 +111,7 @@
                 <input id="show-boundaries" type="checkbox" />
               </label>
 
+              <button id="reverse-route" class="secondary" type="button" disabled title="Reverse the stop order">↕ Reverse</button>
               <button id="clear" class="secondary" type="button">Clear</button>
             </div>
           </div>
@@ -242,6 +243,9 @@
           <div class="section">
             <h2>Export</h2>
             <div class="controls">
+              <button id="export-pdf" class="primary" type="button" disabled>
+                🖨 Print / Save as PDF
+              </button>
               <button id="export-csv" class="secondary" type="button" disabled>
                 Download day plan CSV
               </button>
@@ -249,7 +253,7 @@
                 Copy trip brief
               </button>
               <div class="subtle">
-                Exports include trip rules (max hours/day, max leg hours, breaks, speed) and generated schedule.
+                PDF opens a print dialog — choose "Save as PDF" in your browser. CSV and clipboard exports include full schedule with times.
               </div>
             </div>
           </div>

@@ -429,6 +429,44 @@ async function computeStopOrder() {
 }
 
 /* ===============================
+   LEG LABELS (midpoint drive-time badges on the map)
+================================ */
+/**
+ * Build a readable "Xhr Ymin" string from decimal hours.
+ * e.g. 2.25 → "2h 15m"
+ */
+function hoursToLabel(decimalHours) {
+  const totalMins = Math.round(decimalHours * 60);
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  if (h === 0) return `${m}m`;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+/**
+ * Refresh the "leg-labels" GeoJSON source with midpoint features.
+ * Called after legs are built and geometries attached.
+ */
+function updateLegLabels() {
+  if (!map) return;
+
+  const features = currentLegs
+    .filter((leg) => leg.geometry?.coordinates?.length >= 2)
+    .map((leg) => {
+      const coords  = leg.geometry.coordinates;
+      const midIdx  = Math.floor(coords.length / 2);
+      const midPt   = coords[midIdx];
+      return {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: midPt },
+        properties: { label: hoursToLabel(leg.hours) }
+      };
+    });
+
+  setGeoJSON("leg-labels", { type: "FeatureCollection", features });
+}
+
+/* ===============================
    LEG HIGHLIGHTING
 ================================ */
 function clearLegHighlight() {
@@ -467,13 +505,20 @@ function highlightLeg(index) {
    UI: STATUS / ACTIONS / VALIDATION
 ================================ */
 function updateActionAvailability() {
-  const hasRoute = currentLegs.length > 0;
+  const hasRoute    = currentLegs.length > 0;
   const canOptimize = selectedParks.length >= 3;
+  const canReverse  = selectedParks.length >= 2;
 
   if (optimizeToggle) optimizeToggle.disabled = !canOptimize;
   if (autoScheduleBtn) autoScheduleBtn.disabled = !hasRoute;
   if (exportCsvBtn) exportCsvBtn.disabled = !hasRoute;
   if (copyBriefBtn) copyBriefBtn.disabled = !hasRoute;
+
+  const reverseBtn = document.getElementById("reverse-route");
+  if (reverseBtn) reverseBtn.disabled = !canReverse;
+
+  const pdfBtn = document.getElementById("export-pdf");
+  if (pdfBtn) pdfBtn.disabled = !hasRoute;
 
   if (optimizeToggle) {
     optimizeToggle.title = canOptimize ? "Optimize route order" : "Select at least 3 parks to optimize";
@@ -1013,6 +1058,134 @@ async function copyTripBrief() {
   await navigator.clipboard.writeText(text);
 }
 
+function printTrip() {
+  // Ensure day plan is generated (uses current legs)
+  let plan = dayPlan;
+  let droppedOptional = [];
+  if (!plan.length && currentLegs.length) {
+    const result = generateDayPlan();
+    plan = result.plan;
+    droppedOptional = result.droppedOptional;
+  }
+
+  const totalMiles = currentLegs.reduce((s, l) => s + (l.miles || 0), 0);
+  const totalHours = currentLegs.reduce((s, l) => s + (l.hours || 0), 0);
+  const builtAt    = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+  // Build stops list HTML
+  const stopsHtml = selectedParks.map((p, i) =>
+    `<li>${i + 1}. ${p.name}${p.mustSee === false ? " <em>(optional)</em>" : ""}</li>`
+  ).join("");
+
+  // Build day plan HTML
+  const dayPlanHtml = plan.map((d) => {
+    let clockMins = d.startMins;
+    const rows = [];
+
+    d.legs.forEach((idx, legPos) => {
+      const leg     = currentLegs[idx];
+      const legMins = Math.round((leg.hours || 0) * 60);
+      const departAt = clockMins;
+      const arriveAt = clockMins + legMins;
+      clockMins = arriveAt;
+
+      if (legPos === 0) {
+        rows.push(`<div class="pdf-node pdf-node--start"><span class="pdf-time">${minsToHHMM(departAt)}</span><span class="pdf-place">${leg.fromName}</span></div>`);
+      }
+      rows.push(`<div class="pdf-drive">↓ ${fmt(leg.miles)} mi · ${fmt(leg.hours)} hr drive</div>`);
+      rows.push(`<div class="pdf-node"><span class="pdf-time">${minsToHHMM(arriveAt)}</span><span class="pdf-place">${leg.toName}</span></div>`);
+    });
+
+    return `
+      <div class="pdf-day">
+        <div class="pdf-day-header">
+          Day ${d.day}
+          <span class="pdf-day-meta">${fmt(d.miles)} mi · ${fmt(d.driveHours)} hr drive · ${minsToHHMM(d.startMins)}–${minsToHHMM(d.endMins)}</span>
+        </div>
+        <div class="pdf-timeline">${rows.join("")}</div>
+      </div>`;
+  }).join("");
+
+  // Airport suggestion text
+  const airportEl  = document.getElementById("airport-suggestion-content");
+  const airportTxt = airportEl?.innerText?.trim() ?? "";
+  const airportHtml = airportTxt
+    ? `<section class="pdf-section"><h2>✈ Suggested Airports</h2><pre class="pdf-airports">${airportTxt}</pre></section>`
+    : "";
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>National Parks Trip — ${builtAt}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Georgia",serif;color:#111;background:#fff;padding:32px;max-width:720px;margin:auto;font-size:14px;line-height:1.6}
+  h1{font-size:22px;font-weight:700;margin-bottom:4px}
+  h2{font-size:15px;font-weight:700;margin:0 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px}
+  .pdf-meta{color:#555;font-size:12px;margin-bottom:24px}
+  .pdf-section{margin-bottom:28px}
+  .pdf-summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px}
+  .pdf-stat{border:1px solid #ddd;border-radius:6px;padding:10px 14px}
+  .pdf-stat__label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em}
+  .pdf-stat__value{font-size:18px;font-weight:700;color:#111}
+  ol,ul{padding-left:18px}
+  li{margin-bottom:3px}
+  .pdf-day{border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin-bottom:16px;page-break-inside:avoid}
+  .pdf-day-header{font-weight:700;font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+  .pdf-day-meta{font-size:12px;color:#666;font-weight:400}
+  .pdf-timeline{display:flex;flex-direction:column;gap:2px}
+  .pdf-node{display:flex;align-items:baseline;gap:12px}
+  .pdf-node--start .pdf-time{color:#888}
+  .pdf-time{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;min-width:40px;text-align:right;color:#7700cc;flex-shrink:0}
+  .pdf-place{font-size:13px;font-weight:600}
+  .pdf-drive{font-size:11px;color:#888;margin-left:52px;padding:2px 0;font-style:italic}
+  .pdf-airports{font-family:inherit;white-space:pre-wrap;font-size:13px;color:#333}
+  .pdf-footer{margin-top:36px;border-top:1px solid #eee;padding-top:12px;font-size:11px;color:#aaa;text-align:center}
+  @media print{
+    body{padding:16px}
+    .pdf-day{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<h1>National Parks Trip Itinerary</h1>
+<p class="pdf-meta">Generated ${builtAt} · ${selectedParks.length} stops · ${fmt(totalMiles)} mi · ${fmt(totalHours)} hr total drive</p>
+
+<section class="pdf-section">
+  <h2>Trip Summary</h2>
+  <div class="pdf-summary-grid">
+    <div class="pdf-stat"><div class="pdf-stat__label">Total Miles</div><div class="pdf-stat__value">${fmt(totalMiles)} mi</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Total Drive</div><div class="pdf-stat__value">${fmt(totalHours)} hr</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Days</div><div class="pdf-stat__value">${plan.length || "—"}</div></div>
+  </div>
+</section>
+
+<section class="pdf-section">
+  <h2>Stops (${selectedParks.length})</h2>
+  <ul>${stopsHtml}</ul>
+</section>
+
+${airportHtml}
+
+<section class="pdf-section">
+  <h2>Day-by-Day Schedule</h2>
+  ${dayPlanHtml || "<p>Generate a day plan in the Day-by-Day tab first.</p>"}
+</section>
+
+<div class="pdf-footer">National Parks Planner · national-parks-planner.github.io</div>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) { alert("Please allow pop-ups to use Print / Save as PDF."); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  // Small delay so browser fully renders before print dialog
+  setTimeout(() => win.print(), 400);
+}
+
 /* ===============================
    STOPS LIST
 ================================ */
@@ -1246,6 +1419,7 @@ function clearRoute() {
 
   setGeoJSON("route", emptyLineStringFeature());
   setGeoJSON("route-highlight", emptyLineStringFeature());
+  setGeoJSON("leg-labels", { type: "FeatureCollection", features: [] });
 }
 
 /* ===============================
@@ -1271,6 +1445,7 @@ async function updateRoute() {
 
     setGeoJSON("route", emptyLineStringFeature());
     setGeoJSON("route-highlight", emptyLineStringFeature());
+    setGeoJSON("leg-labels", { type: "FeatureCollection", features: [] });
     return;
   }
 
@@ -1304,6 +1479,7 @@ async function updateRoute() {
 
     buildLegs(stopsForRouting, roundTripOn);
     attachLegGeometriesFromRoute(result.geometry, stopsForRouting, roundTripOn);
+    updateLegLabels();
 
     if (optimized) {
       const afterMiles = currentLegs.reduce((s, l) => s + (l.miles || 0), 0);
@@ -1555,17 +1731,32 @@ function handleStampCardAddToTrip() {
  * No runtime NPS API calls — all data comes from docs/data/parks.json
  * which is built by scripts/build_nps_data.mjs.
  *
- * parks.json currently carries `url` and coordinates; fee/hours fields
- * can be added to build_nps_data.mjs if needed in future.
- * For now we show a deep-link to the NPS website for authoritative info.
+ * parks.json carries `entranceFee`, `entranceFeeDesc`, and `directionsInfo`
+ * fields added by the build script. Falls back to NPS website link if absent.
  */
 async function fetchNpsParkDetails(parkCode) {
   if (!parkCode) return { fee: "See NPS website", hours: "See NPS website" };
   const park = PARKS_DATA.find((p) => p.parkCode === parkCode);
-  const link = park?.url
+  if (!park) return { fee: "See NPS website", hours: "See NPS website" };
+
+  const npsLink = park.url
     ? `<a href="${park.url}" target="_blank" rel="noopener">NPS website ↗</a>`
     : "See NPS website";
-  return { fee: link, hours: link };
+
+  // Fee: built from entranceFee (cost) + entranceFeeDesc (title/description)
+  let feeText;
+  if (park.entranceFee != null) {
+    const cost = Number(park.entranceFee);
+    feeText = cost === 0 ? "Free" : `$${cost.toFixed(2)}`;
+    if (park.entranceFeeDesc) feeText += ` — ${park.entranceFeeDesc}`;
+  } else {
+    feeText = npsLink;
+  }
+
+  // Hours: stored as directionsInfo (best available from build) or link
+  const hoursText = park.operatingHours ?? npsLink;
+
+  return { fee: feeText, hours: hoursText };
 }
 
 /* ===============================
@@ -2057,6 +2248,7 @@ function initMap() {
     // Routes
     map.addSource("route", { type: "geojson", data: emptyLineStringFeature() });
     map.addSource("route-highlight", { type: "geojson", data: emptyLineStringFeature() });
+    map.addSource("leg-labels", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
 
     map.addLayer({
       id: "route-layer",
@@ -2072,6 +2264,26 @@ function initMap() {
       source: "route-highlight",
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": "#00ff66", "line-width": 5, "line-opacity": 0.9 }
+    });
+
+    // Leg drive-time labels at midpoint of each leg
+    map.addLayer({
+      id: "leg-label-layer",
+      type: "symbol",
+      source: "leg-labels",
+      layout: {
+        "text-field": ["get", "label"],
+        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
+        "text-size": 11,
+        "text-anchor": "center",
+        "text-allow-overlap": false,
+        "symbol-placement": "point"
+      },
+      paint: {
+        "text-color": "#ffffff",
+        "text-halo-color": "#330055",
+        "text-halo-width": 2
+      }
     });
 
     ensureMarkers();
@@ -2305,8 +2517,19 @@ window.addEventListener("DOMContentLoaded", () => {
     setMode("daybyday");
   });
 
+  document.getElementById("export-pdf")?.addEventListener("click", printTrip);
   exportCsvBtn?.addEventListener("click", exportDayPlanCSV);
   copyBriefBtn?.addEventListener("click", copyTripBrief);
+
+  document.getElementById("reverse-route")?.addEventListener("click", () => {
+    if (selectedParks.length < 2) return;
+    selectedParks.reverse();
+    renderStopsList();
+    updateMarkerNumbers();
+    renderStatus();
+    updateActionAvailability();
+    debounceRouteUpdate(120);
+  });
 
   clearBtn?.addEventListener("click", clearRoute);
 

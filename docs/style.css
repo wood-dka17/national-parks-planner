@@ -1426,6 +1426,7 @@ body.is-routing #sidebar::after {
 }
 
 .airport-info {
+  flex: 1;
   line-height: 1.4;
   color: var(--text);
 }
@@ -1438,6 +1439,14 @@ body.is-routing #sidebar::after {
 .airport-dist {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.airport-set-origin {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 11px;
+  padding: 4px 10px;
+  white-space: nowrap;
 }
 
 .airport-same-note {

@@ -2349,6 +2349,12 @@ function renderAirportSuggestion() {
         <div class="airport-detail">${flyIn.name}</div>
         <div class="airport-dist">${flyIn.distMi} mi from ${first.name}</div>
       </div>
+      <button class="btn btn--ghost airport-set-origin"
+              data-lon="${flyIn.lon}" data-lat="${flyIn.lat}"
+              data-label="${flyIn.iata} – ${flyIn.city}, ${flyIn.state}"
+              type="button" title="Use this airport as your trip origin">
+        Set Origin
+      </button>
     </div>
     ${sameAirport ? `
     <div class="airport-same-note">Same airport for fly-out — consider reordering stops for a one-way trip.</div>
@@ -2360,9 +2366,26 @@ function renderAirportSuggestion() {
         <div class="airport-detail">${flyOut.name}</div>
         <div class="airport-dist">${flyOut.distMi} mi from ${last.name}</div>
       </div>
+      <button class="btn btn--ghost airport-set-origin"
+              data-lon="${flyOut.lon}" data-lat="${flyOut.lat}"
+              data-label="${flyOut.iata} – ${flyOut.city}, ${flyOut.state}"
+              type="button" title="Use this airport as your trip origin">
+        Set Origin
+      </button>
     </div>
     `}
   `;
+
+  // Wire "Set Origin" buttons — use event delegation on the freshly-rendered HTML
+  content.querySelectorAll(".airport-set-origin").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const lon   = parseFloat(btn.dataset.lon);
+      const lat   = parseFloat(btn.dataset.lat);
+      const label = btn.dataset.label;
+      setOriginMarker([lon, lat], label);
+      if (selectedParks.length >= 1) debounceRouteUpdate(120);
+    });
+  });
 
   section.classList.remove("is-hidden");
 }

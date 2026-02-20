@@ -935,7 +935,7 @@
     "passportRegion": "Mid-Atlantic"
   },
   {
-    "name": "César E. Chávez National Monument",
+    "name": "C\u00e9sar E. Ch\u00e1vez National Monument",
     "parkCode": "cech",
     "designation": "National Monument",
     "layer": "other",
@@ -2310,7 +2310,7 @@
     "passportRegion": "Rocky Mountain"
   },
   {
-    "name": "Haleakalā National Park",
+    "name": "Haleakal\u0101 National Park",
     "parkCode": "hale",
     "designation": "National Park",
     "layer": "national-park",
@@ -2398,7 +2398,7 @@
     "passportRegion": "Midwest"
   },
   {
-    "name": "Hawaiʻi Volcanoes National Park",
+    "name": "Hawai\u02bbi Volcanoes National Park",
     "parkCode": "havo",
     "designation": "National Park",
     "layer": "national-park",
@@ -2574,7 +2574,7 @@
     "passportRegion": "Midwest"
   },
   {
-    "name": "Iñupiat Heritage Center",
+    "name": "I\u00f1upiat Heritage Center",
     "parkCode": "inup",
     "designation": "Other",
     "layer": "other",
@@ -2717,7 +2717,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Kaloko-Honokōhau National Historical Park",
+    "name": "Kaloko-Honok\u014dhau National Historical Park",
     "parkCode": "kaho",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4015,7 +4015,7 @@
     "passportRegion": "Mid-Atlantic"
   },
   {
-    "name": "Puʻuhonua o Hōnaunau National Historical Park",
+    "name": "Pu\u02bbuhonua o H\u014dnaunau National Historical Park",
     "parkCode": "puho",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4026,7 +4026,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Puʻukoholā Heiau National Historic Site",
+    "name": "Pu\u02bbukohol\u0101 Heiau National Historic Site",
     "parkCode": "puhe",
     "designation": "National Historic Site",
     "layer": "other",
@@ -4403,7 +4403,7 @@
     "name": "Sequoia & Kings Canyon National Parks",
     "parkCode": "seki",
     "designation": "National Parks",
-    "layer": "other",
+    "layer": "national-park",
     "lat": 36.71277299,
     "lon": -118.587429,
     "states": "CA",
@@ -4499,7 +4499,7 @@
     "passportRegion": "North Atlantic"
   },
   {
-    "name": "Ste. Geneviève National Historical Park",
+    "name": "Ste. Genevi\u00e8ve National Historical Park",
     "parkCode": "stge",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4752,7 +4752,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Tumacácori National Historical Park",
+    "name": "Tumac\u00e1cori National Historical Park",
     "parkCode": "tuma",
     "designation": "National Historical Park",
     "layer": "other",

@@ -138,7 +138,8 @@ async function main() {
 
   /* ── 2. Identify national park designation set ───────────────── */
   const NP_DESIGNATIONS = new Set([
-    "National Park", "National Park & Preserve",
+    "National Park", "National Parks",           // singular + plural (e.g. Sequoia & Kings Canyon)
+    "National Park & Preserve",
     "National Park and Preserve", "National Preserve",
     "National Reserve",
   ]);

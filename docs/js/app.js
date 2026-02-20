@@ -539,6 +539,9 @@ function updateActionAvailability() {
   const pdfBtn = document.getElementById("export-pdf");
   if (pdfBtn) pdfBtn.disabled = !hasRoute;
 
+  const shareBtn = document.getElementById("share-link");
+  if (shareBtn) shareBtn.disabled = selectedParks.length === 0;
+
   if (optimizeToggle) {
     optimizeToggle.title = canOptimize ? "Optimize route order" : "Select at least 3 parks to optimize";
   }
@@ -1065,6 +1068,7 @@ function exportDayPlanCSV() {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+  showToast("✅ Day plan CSV downloaded");
 }
 
 async function copyTripBrief() {
@@ -1105,6 +1109,7 @@ async function copyTripBrief() {
   ].join("\n");
 
   await navigator.clipboard.writeText(text);
+  showToast("📋 Trip brief copied to clipboard");
 }
 
 function printTrip() {
@@ -1233,6 +1238,7 @@ ${airportHtml}
   win.focus();
   // Small delay so browser fully renders before print dialog
   setTimeout(() => win.print(), 400);
+  showToast("🖨️ Print dialog opened");
 }
 
 /* ===============================
@@ -1712,6 +1718,9 @@ function renderStopsList() {
 
   // Update airport suggestion whenever stops change
   renderAirportSuggestion();
+
+  // Persist trip to localStorage so page refreshes don't lose the route
+  saveTripState();
 }
 
 /* ===============================
@@ -1743,6 +1752,7 @@ function setOriginMarker(lngLat, label) {
       .addTo(map);
   }
   renderOriginDisplay();
+  saveTripState();
 }
 
 function clearOriginMarker() {
@@ -1750,6 +1760,7 @@ function clearOriginMarker() {
   originMarker = null;
   originPoint  = null;
   renderOriginDisplay();
+  saveTripState();
 }
 
 async function geocodeOriginQuery(query) {
@@ -1793,13 +1804,222 @@ function clearRoute() {
   renderViolations([]);
   renderOptimizeSummary(null);
   renderStatus();
-  renderStopsList();
+  renderStopsList();        // → also calls saveTripState() (empty state)
   updateMarkerNumbers();
   updateActionAvailability();
+  clearOriginMarker();      // also clears origin from localStorage via saveTripState
 
   setGeoJSON("route", emptyLineStringFeature());
   setGeoJSON("route-highlight", emptyLineStringFeature());
   setGeoJSON("leg-labels", { type: "FeatureCollection", features: [] });
+}
+
+/* ===============================
+   TRIP PERSISTENCE (localStorage)
+================================ */
+const TRIP_STORAGE_KEY = "npp_trip_v1";
+
+/**
+ * Serialize the current trip (stops + origin + key rules) to localStorage.
+ * Called automatically whenever selectedParks or originPoint changes.
+ */
+function saveTripState() {
+  try {
+    const state = {
+      selectedParks,
+      originPoint,
+      tripRules: {
+        maxDriveHoursPerDay: tripRules.maxDriveHoursPerDay,
+        maxSingleLegHours:   tripRules.maxSingleLegHours,
+        breakMinutesPerDay:  tripRules.breakMinutesPerDay,
+        startTimeHHMM:       tripRules.startTimeHHMM,
+        wakeHHMM:            tripRules.wakeHHMM,
+        sleepHHMM:           tripRules.sleepHHMM,
+        speedMph:            tripRules.speedMph,
+        noBacktracking:      tripRules.noBacktracking,
+        travelMonth:         tripRules.travelMonth,
+        filterClosedParks:   tripRules.filterClosedParks,
+        visitHoursPerPark:   tripRules.visitHoursPerPark,
+      },
+    };
+    localStorage.setItem(TRIP_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    // Silently swallow QuotaExceededError or SecurityError (private browsing)
+    console.warn("saveTripState: could not write to localStorage:", e.message);
+  }
+}
+
+/**
+ * Restore a previously saved trip from localStorage.
+ * Called inside map.on("load") after all layers are initialized so markers
+ * can be placed on the map immediately.
+ * Syncs restored rule values back into the HTML inputs.
+ */
+function loadTripState() {
+  let state;
+  try {
+    const raw = localStorage.getItem(TRIP_STORAGE_KEY);
+    if (!raw) return;
+    state = JSON.parse(raw);
+  } catch (e) {
+    console.warn("loadTripState: could not parse localStorage:", e.message);
+    return;
+  }
+
+  if (!state) return;
+
+  // ── Restore trip rules ───────────────────────────────────────────────────
+  if (state.tripRules) {
+    Object.assign(tripRules, state.tripRules);
+    // Sync back to UI inputs
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+    setVal("start-time",       tripRules.startTimeHHMM);
+    setVal("wake-time",        tripRules.wakeHHMM);
+    setVal("sleep-time",       tripRules.sleepHHMM);
+    setVal("max-hours",        tripRules.maxDriveHoursPerDay);
+    setVal("max-leg-hours",    tripRules.maxSingleLegHours);
+    setVal("break-mins",       tripRules.breakMinutesPerDay);
+    setVal("speed-mph",        tripRules.speedMph);
+    setVal("travel-month",     tripRules.travelMonth);
+    setVal("visit-hours",      tripRules.visitHoursPerPark);
+    setChk("no-backtracking",  tripRules.noBacktracking);
+    setChk("filter-closed",    tripRules.filterClosedParks);
+  }
+
+  // ── Restore origin ───────────────────────────────────────────────────────
+  if (state.originPoint?.lngLat) {
+    // Bypass setOriginMarker() to avoid a redundant saveTripState write
+    originPoint = state.originPoint;
+    const el = document.createElement("div");
+    el.className = "origin-marker";
+    originMarker = new mapboxgl.Marker({ element: el })
+      .setLngLat(originPoint.lngLat)
+      .addTo(map);
+    renderOriginDisplay();
+  }
+
+  // ── Restore stops ────────────────────────────────────────────────────────
+  if (Array.isArray(state.selectedParks) && state.selectedParks.length) {
+    selectedParks = state.selectedParks;
+    renderStopsList();           // re-renders sidebar rows
+    updateMarkerNumbers();       // re-numbers the map pins
+    updateActionAvailability();
+    debounceRouteUpdate(300);    // recalculate the route
+  }
+}
+
+/* ===============================
+   SHAREABLE URL
+================================ */
+/**
+ * Encode the current trip into a URL query string and copy to clipboard.
+ * Format: ?parks=yell,grca,zion&origin=-111.09,36.1&originLabel=Las+Vegas
+ * Parks are identified by parkCode (from PARKS_DATA) or the stop id for stamps.
+ */
+async function copyShareLink() {
+  if (!selectedParks.length) return;
+
+  const params = new URLSearchParams();
+
+  // Encode stops as parkCode (for NPS parks/stamps) or numeric id
+  const stopCodes = selectedParks.map((p) => {
+    if (p.source !== "stamp" && PARKS_DATA[p.id]?.parkCode) {
+      return PARKS_DATA[p.id].parkCode;
+    }
+    return String(p.id);
+  });
+  params.set("parks", stopCodes.join(","));
+
+  // Encode origin
+  if (originPoint?.lngLat) {
+    params.set("origin", `${originPoint.lngLat[0].toFixed(5)},${originPoint.lngLat[1].toFixed(5)}`);
+    if (originPoint.label) params.set("originLabel", originPoint.label);
+  }
+
+  const url = `${location.origin}${location.pathname}?${params.toString()}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("🔗 Share link copied to clipboard");
+  } catch {
+    // Fallback: show URL in prompt so user can copy manually
+    prompt("Copy this link to share your trip:", url);
+  }
+}
+
+/**
+ * On page load, check for trip params in the URL.
+ * If present, restore the trip from the URL and clear the params from the address bar.
+ * URL params take priority over localStorage.
+ * Returns true if a trip was restored from URL.
+ */
+function restoreFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const parksParam = params.get("parks");
+  if (!parksParam) return false;
+
+  const codes = parksParam.split(",").filter(Boolean);
+  if (!codes.length) return false;
+
+  // Map park codes back to selectedParks items
+  const restored = [];
+  for (const code of codes) {
+    // Try NPS park code match first
+    const idx = PARKS_DATA.findIndex((p) => p.parkCode === code);
+    if (idx !== -1) {
+      const p = PARKS_DATA[idx];
+      restored.push({ id: idx, name: p.name, coords: [p.lon, p.lat], locked: false, source: "park" });
+      continue;
+    }
+    // Try stamp match by parkCode
+    const stamp = NPS_STAMPS?.find((s) => s.parkCode === code);
+    if (stamp) {
+      restored.push({ id: stamp.parkCode, name: stamp.name, coords: [stamp.lon, stamp.lat], locked: false, source: "stamp" });
+      continue;
+    }
+    // Numeric id fallback
+    const numId = parseInt(code, 10);
+    if (!isNaN(numId) && PARKS_DATA[numId]) {
+      const p = PARKS_DATA[numId];
+      restored.push({ id: numId, name: p.name, coords: [p.lon, p.lat], locked: false, source: "park" });
+    }
+  }
+
+  if (!restored.length) return false;
+
+  // Restore origin if present (map is already loaded when this runs)
+  const originParam = params.get("origin");
+  if (originParam) {
+    const [lon, lat] = originParam.split(",").map(Number);
+    if (Number.isFinite(lon) && Number.isFinite(lat)) {
+      const label = params.get("originLabel") ?? "Shared origin";
+      originPoint = { lngLat: [lon, lat], label };
+      if (map) {
+        const el = document.createElement("div");
+        el.className = "origin-marker";
+        originMarker = new mapboxgl.Marker({ element: el })
+          .setLngLat([lon, lat])
+          .addTo(map);
+      }
+      renderOriginDisplay();
+    }
+  }
+
+  // Apply restored stops
+  selectedParks = restored;
+  renderStopsList();
+  updateMarkerNumbers();
+  updateActionAvailability();
+  debounceRouteUpdate(300);
+
+  // Save to localStorage so refresh keeps the shared trip
+  saveTripState();
+
+  // Clean up URL so share params don't persist across refreshes
+  const cleanUrl = `${location.origin}${location.pathname}`;
+  history.replaceState(null, "", cleanUrl);
+
+  return true;
 }
 
 /* ===============================
@@ -3120,7 +3340,15 @@ function initMap() {
     initAirportLayer();
     initCampgroundLayer();
 
-    // If geolocation already resolved before the map loaded, materialize the marker now
+    // Restore trip: URL params take priority over localStorage.
+    // Must run after all map sources/layers are ready so markers can be placed.
+    const restoredFromUrl = restoreFromUrl();
+    if (!restoredFromUrl) {
+      loadTripState();
+    }
+
+    // If geolocation already resolved before the map loaded (and loadTripState
+    // didn't restore an origin), materialize the geolocation marker now.
     if (originPoint && !originMarker) {
       const el = document.createElement("div");
       el.className = "origin-marker";
@@ -3424,6 +3652,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("export-pdf")?.addEventListener("click", printTrip);
+  document.getElementById("share-link")?.addEventListener("click", copyShareLink);
   exportCsvBtn?.addEventListener("click", exportDayPlanCSV);
   copyBriefBtn?.addEventListener("click", copyTripBrief);
 

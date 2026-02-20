@@ -405,6 +405,14 @@ h3 {
   gap: 8px;
 }
 
+/* Horizontal button row inside a controls block */
+.controls--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.controls--row .btn { flex: 1; justify-content: center; }
+
 .toggle {
   display: flex;
   align-items: center;
@@ -702,7 +710,28 @@ button { font: inherit; }
   letter-spacing: 0.02em;
 }
 
-.field--full { grid-column: 1 / -1; }
+.field--full   { grid-column: 1 / -1; }
+
+/* Inline label + compact input side-by-side */
+.field--inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.field--inline label {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 400;
+}
+.field--inline input {
+  width: 5rem;
+  text-align: right;
+}
 
 input[type="time"],
 input[type="number"],

@@ -127,9 +127,18 @@
                   <span>Show park boundaries</span>
                   <input id="show-boundaries" type="checkbox" />
                 </label>
-                <button id="clear" class="btn btn--ghost" type="button">
-                  <i data-lucide="trash-2" width="14" height="14"></i> Clear
-                </button>
+                <div class="field field--inline">
+                  <label for="visit-hours">Visit hours / park</label>
+                  <input id="visit-hours" type="number" min="0.5" max="24" step="0.5" value="1.5" style="width:5rem" />
+                </div>
+                <div class="controls controls--row">
+                  <button id="reverse-route" class="btn btn--ghost" type="button" disabled>
+                    <i data-lucide="arrow-left-right" width="14" height="14"></i> Reverse Route
+                  </button>
+                  <button id="clear" class="btn btn--ghost" type="button">
+                    <i data-lucide="trash-2" width="14" height="14"></i> Clear
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -306,6 +315,12 @@
                 </button>
                 <button id="copy-brief" class="btn btn--ghost" type="button" disabled>
                   <i data-lucide="clipboard" width="14" height="14"></i> Copy trip brief
+                </button>
+                <button id="export-pdf" class="btn btn--ghost" type="button" disabled>
+                  <i data-lucide="printer" width="14" height="14"></i> Print itinerary
+                </button>
+                <button id="share-link" class="btn btn--ghost" type="button" disabled>
+                  <i data-lucide="link" width="14" height="14"></i> Copy share link
                 </button>
                 <div class="subtle">Exports include trip rules and generated schedule.</div>
               </div>

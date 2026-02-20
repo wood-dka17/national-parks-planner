@@ -122,14 +122,35 @@ async function main() {
   const seen     = new Set(); // deduplicate by FacilityID
 
   /* ── 1+2. NPS + USFS Campgrounds ────────────────────────────── */
-  // The /campgrounds endpoint does not reliably filter by OrgAbbrevCode server-side.
-  // Fetch all campgrounds and split client-side by OrgAbbrevCode.
   console.log("Fetching all campgrounds from RIDB (NPS + USFS)…");
   try {
     const allCamps = await ridbGetAll("campgrounds", {});
-    const npsCamps  = allCamps.filter((f) => f.OrgAbbrevCode === "NPS");
-    const usfsCamps = allCamps.filter((f) => f.OrgAbbrevCode === "USFS");
-    console.log(`  → ${allCamps.length} total, ${npsCamps.length} NPS, ${usfsCamps.length} USFS`);
+    console.log(`  → ${allCamps.length} total campground records`);
+
+    // Log the keys of the first record so we can see the actual field names
+    if (allCamps.length > 0) {
+      console.log("  First record keys:", Object.keys(allCamps[0]).join(", "));
+      console.log("  First record sample:", JSON.stringify({
+        FacilityID:       allCamps[0].FacilityID,
+        FacilityName:     allCamps[0].FacilityName,
+        OrgAbbrevCode:    allCamps[0].OrgAbbrevCode,
+        FacilityOrgType:  allCamps[0].FacilityOrgType,
+        ORGANIZATION:     allCamps[0].ORGANIZATION,
+        ParentOrgID:      allCamps[0].ParentOrgID,
+        FacilityTypeDescription: allCamps[0].FacilityTypeDescription,
+      }));
+    }
+
+    // Try matching by OrgAbbrevCode first; fall back to name/type heuristics
+    const npsCamps  = allCamps.filter((f) =>
+      f.OrgAbbrevCode === "NPS" ||
+      (Array.isArray(f.ORGANIZATION) && f.ORGANIZATION.some((o) => o.OrgAbbrevCode === "NPS"))
+    );
+    const usfsCamps = allCamps.filter((f) =>
+      f.OrgAbbrevCode === "USFS" ||
+      (Array.isArray(f.ORGANIZATION) && f.ORGANIZATION.some((o) => o.OrgAbbrevCode === "USFS"))
+    );
+    console.log(`  → ${npsCamps.length} NPS, ${usfsCamps.length} USFS after filter`);
 
     for (const f of npsCamps) {
       if (seen.has(f.FacilityID)) continue;

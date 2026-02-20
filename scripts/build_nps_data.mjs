@@ -212,15 +212,14 @@ async function main() {
   const parkCodes = parks.map((p) => p.parkCode);
   const vcByCode  = new Map();
 
-  for (let i = 0; i < parkCodes.length; i += 50) {
-    const batch = parkCodes.slice(i, i + 50);
+  // Fetch in small batches (10 park codes at a time) with full pagination so we
+  // don't miss visitor centers. latitude/longitude are returned by default —
+  // no special fields parameter needed.
+  for (let i = 0; i < parkCodes.length; i += 10) {
+    const batch = parkCodes.slice(i, i + 10);
     try {
-      const json = await npsGet("visitorcenters", {
-        parkCode: batch.join(","),
-        limit: 50,
-        fields: "latLong",
-      });
-      for (const vc of (json.data ?? [])) {
+      const vcs = await npsGetAll("visitorcenters", { parkCode: batch.join(",") });
+      for (const vc of vcs) {
         const code = vc.parkCode?.toLowerCase();
         if (!code || vcByCode.has(code)) continue;
         const lat = parseFloat(vc.latitude);

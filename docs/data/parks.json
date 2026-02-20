@@ -137,14 +137,15 @@
     "name": "Canyonlands National Park",
     "parkCode": "cany",
     "state": "UT",
-    "lat": 38.24555783,
-    "lon": -109.8801624,
+    "lat": 38.539153,
+    "lon": -109.51026,
     "url": "https://www.nps.gov/cany/index.htm",
     "designation": "National Park",
     "description": "Canyonlands invites you to explore a wilderness of countless canyons and fantastically formed buttes carved by the Colorado River and its tributaries. Rivers divide the park into four districts: Island in the Sky, The Needles, The Maze, and the rivers themselves. These areas share a primitive desert…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
-    "operatingHours": "Canyonlands National Park is generally open 24 hours a day, year-round."
+    "operatingHours": "Canyonlands National Park is generally open 24 hours a day, year-round.",
+    "visitorCenterName": "Canyonlands Backcountry Office"
   },
   {
     "id": 11,
@@ -269,14 +270,15 @@
     "name": "Dry Tortugas National Park",
     "parkCode": "drto",
     "state": "FL",
-    "lat": 24.628741,
-    "lon": -82.87319,
+    "lat": 24.55074999902422,
+    "lon": -81.80657771972369,
     "url": "https://www.nps.gov/drto/index.htm",
     "designation": "National Park",
     "description": "Almost 70 miles (113 km) west of Key West lies the remote Dry Tortugas National Park. This 100-square mile park is mostly open water with seven small islands. Accessible only by boat or seaplane, the park is known the world over as the home of magnificent Fort Jefferson, picturesque blue waters, sup…",
     "entranceFee": 15,
     "entranceFeeDesc": "Entrance - Per Person",
-    "operatingHours": "The Dry Tortugas is open 24 hours, 7 days a week. This includes holidays."
+    "operatingHours": "The Dry Tortugas is open 24 hours, 7 days a week. This includes holidays.",
+    "visitorCenterName": "Florida Keys Eco-Discovery Center"
   },
   {
     "id": 21,
@@ -403,12 +405,13 @@
     "name": "Great Smoky Mountains National Park",
     "parkCode": "grsm",
     "state": "NC,TN",
-    "lat": 35.60116374,
-    "lon": -83.50818326,
+    "lat": 35.5849678472,
+    "lon": -83.8430866741,
     "url": "https://www.nps.gov/grsm/index.htm",
     "designation": "National Park",
     "description": "Ridge upon ridge of forest straddles the border between North Carolina and Tennessee in Great Smoky Mountains National Park. World renowned for its diversity of plant and animal life, the beauty of its ancient mountains, and the quality of its remnants of Southern Appalachian mountain culture, this …",
-    "operatingHours": "Primary roads are open 24 hours a day, seven days a week, year-round, weather permitting. This includes Newfound Gap Roa…"
+    "operatingHours": "Primary roads are open 24 hours a day, seven days a week, year-round, weather permitting. This includes Newfound Gap Roa…",
+    "visitorCenterName": "Cades Cove Visitor Center"
   },
   {
     "id": 31,
@@ -535,12 +538,13 @@
     "name": "Kobuk Valley National Park",
     "parkCode": "kova",
     "state": "AK",
-    "lat": 67.35631336,
-    "lon": -159.2002293,
+    "lat": 66.892539,
+    "lon": -162.605111,
     "url": "https://www.nps.gov/kova/index.htm",
     "designation": "National Park",
     "description": "Caribou, sand dunes, the Kobuk River, Onion Portage - just some of the facets of Kobuk Valley National Park. Thousands of caribou migrate through, their tracks crisscrossing sculpted dunes. The Kobuk River is an ancient and current corridor for people and wildlife. For 9000 years, people came to Oni…",
-    "operatingHours": "The Northwest Arctic Heritage Center is the visitor center for Kobuk Valley National Park.  Since there are no roads in …"
+    "operatingHours": "The Northwest Arctic Heritage Center is the visitor center for Kobuk Valley National Park.  Since there are no roads in …",
+    "visitorCenterName": "Northwest Arctic Heritage Center"
   },
   {
     "id": 41,
@@ -798,14 +802,15 @@
     "name": "Valles Caldera National Preserve",
     "parkCode": "vall",
     "state": "NM",
-    "lat": 35.91682872,
-    "lon": -106.5195724,
+    "lat": 35.86438952202784,
+    "lon": -106.51895703889164,
     "url": "https://www.nps.gov/vall/index.htm",
     "designation": "National Preserve",
     "description": "About 1.2 million years ago, a spectacular volcanic eruption created a 14-mile-wide circular depression in the earth now known as Valles Caldera. The preserve is known for its huge mountain meadows, abundant wildlife, and meandering streams. The area also preserves the homeland of ancestral native p…",
     "entranceFee": 25,
     "entranceFeeDesc": "Entrance - Private Vehicle",
-    "operatingHours": "Valle Grande Main Entrance is located at mile marker 39.2 along New Mexico Highway 4."
+    "operatingHours": "Valle Grande Main Entrance is located at mile marker 39.2 along New Mexico Highway 4.",
+    "visitorCenterName": "Volcano Discovery Center"
   },
   {
     "id": 61,

@@ -15,9 +15,9 @@
  * In GitHub Actions it comes from the RIDB_API_KEY repository secret.
  *
  * RIDB API docs: https://ridb.recreation.gov/docs
- * Activity 9 = Camping
- * FacilityTypeDescription: "Campground" filters to designated campgrounds
+ * Uses the dedicated /campgrounds endpoint (not /facilities).
  * OrgAbbrevCode: "USFS" = National Forests, "NPS" = National Park Service
+ * API key sent as "apikey" header per RIDB docs.
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
@@ -41,11 +41,15 @@ if (!RIDB_KEY) {
 
 async function ridbGet(endpoint, params = {}) {
   const url = new URL(`${RIDB_BASE}/${endpoint}`);
-  url.searchParams.set("apikey", RIDB_KEY);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
 
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`RIDB ${endpoint} → HTTP ${res.status}`);
+  const res = await fetch(url.toString(), {
+    headers: { apikey: RIDB_KEY, accept: "application/json" },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`RIDB ${endpoint} → HTTP ${res.status}: ${body.slice(0, 200)}`);
+  }
   return res.json();
 }
 
@@ -58,6 +62,12 @@ async function ridbGetAll(endpoint, extraParams = {}) {
 
   while (offset < total) {
     const json = await ridbGet(endpoint, { ...extraParams, limit, offset });
+
+    // Log first-page metadata so we can see what the API is returning
+    if (offset === 0) {
+      console.log(`    METADATA: ${JSON.stringify(json.METADATA?.RESULTS ?? json.METADATA ?? "(none)")}`);
+    }
+
     total = parseInt(json.METADATA?.RESULTS?.TOTAL_COUNT ?? "0", 10);
     const batch = json.RECDATA ?? [];
     items.push(...batch);
@@ -79,6 +89,29 @@ function parseFee(feeDesc) {
   return match ? match[0] : feeDesc.trim().slice(0, 30) || null;
 }
 
+/** Map a RIDB campground record to a GeoJSON feature (returns null if no coords). */
+function toFeature(f, type) {
+  const lat = parseFloat(f.FacilityLatitude);
+  const lon = parseFloat(f.FacilityLongitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return null;
+
+  const fee = parseFee(f.FacilityUseFeeDescription);
+  return {
+    type: "Feature",
+    geometry: { type: "Point", coordinates: [lon, lat] },
+    properties: {
+      name:        f.FacilityName,
+      type,
+      facilityId:  f.FacilityID,
+      reserveUrl:  reservationUrl(f.FacilityID),
+      fee,
+      description: f.FacilityDescription
+        ? f.FacilityDescription.replace(/<[^>]*>/g, "").trim().slice(0, 200) || null
+        : null,
+    },
+  };
+}
+
 /* ─── main ────────────────────────────────────────────────────── */
 
 async function main() {
@@ -91,35 +124,14 @@ async function main() {
   /* ── 1. NPS Campgrounds ──────────────────────────────────────── */
   console.log("Fetching NPS campgrounds from RIDB…");
   try {
-    const npsCamps = await ridbGetAll("facilities", {
-      activity:                9,           // Activity 9 = Camping
-      FacilityTypeDescription: "Campground",
-      OrgAbbrevCode:           "NPS",
-    });
-    console.log(`  → ${npsCamps.length} NPS campground facilities`);
+    const npsCamps = await ridbGetAll("campgrounds", { OrgAbbrevCode: "NPS" });
+    console.log(`  → ${npsCamps.length} NPS campground records`);
 
     for (const f of npsCamps) {
-      const lat = parseFloat(f.FacilityLatitude);
-      const lon = parseFloat(f.FacilityLongitude);
-      if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) continue;
       if (seen.has(f.FacilityID)) continue;
       seen.add(f.FacilityID);
-
-      const fee = parseFee(f.FacilityUseFeeDescription);
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [lon, lat] },
-        properties: {
-          name:        f.FacilityName,
-          type:        "NPS",
-          facilityId:  f.FacilityID,
-          reserveUrl:  reservationUrl(f.FacilityID),
-          fee:         fee,
-          description: f.FacilityDescription
-            ? f.FacilityDescription.replace(/<[^>]*>/g, "").trim().slice(0, 200) || null
-            : null,
-        },
-      });
+      const feat = toFeature(f, "NPS");
+      if (feat) features.push(feat);
     }
   } catch (e) {
     console.warn("  NPS campground fetch failed:", e.message);
@@ -128,35 +140,14 @@ async function main() {
   /* ── 2. National Forest Campgrounds (USFS) ───────────────────── */
   console.log("Fetching National Forest (USFS) campgrounds from RIDB…");
   try {
-    const usfsCamps = await ridbGetAll("facilities", {
-      activity:                9,
-      FacilityTypeDescription: "Campground",
-      OrgAbbrevCode:           "USFS",
-    });
-    console.log(`  → ${usfsCamps.length} USFS campground facilities`);
+    const usfsCamps = await ridbGetAll("campgrounds", { OrgAbbrevCode: "USFS" });
+    console.log(`  → ${usfsCamps.length} USFS campground records`);
 
     for (const f of usfsCamps) {
-      const lat = parseFloat(f.FacilityLatitude);
-      const lon = parseFloat(f.FacilityLongitude);
-      if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) continue;
       if (seen.has(f.FacilityID)) continue;
       seen.add(f.FacilityID);
-
-      const fee = parseFee(f.FacilityUseFeeDescription);
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [lon, lat] },
-        properties: {
-          name:        f.FacilityName,
-          type:        "National Forest",
-          facilityId:  f.FacilityID,
-          reserveUrl:  reservationUrl(f.FacilityID),
-          fee:         fee,
-          description: f.FacilityDescription
-            ? f.FacilityDescription.replace(/<[^>]*>/g, "").trim().slice(0, 200) || null
-            : null,
-        },
-      });
+      const feat = toFeature(f, "National Forest");
+      if (feat) features.push(feat);
     }
   } catch (e) {
     console.warn("  USFS campground fetch failed:", e.message);
@@ -170,13 +161,13 @@ async function main() {
 
   await writeFile(
     resolve(OUT_DIR, "campgrounds.json"),
-    JSON.stringify(geojson, null, 2),
+    JSON.stringify(geojson),   // minified — no need for pretty-print on data files
     "utf8"
   );
 
   console.log(`\n✅ Done.`);
   console.log(`   campgrounds.json → ${features.length} total campgrounds`);
-  console.log(`     NPS:            ${npsCt}`);
+  console.log(`     NPS:             ${npsCt}`);
   console.log(`     National Forest: ${usfsCt}`);
 }
 

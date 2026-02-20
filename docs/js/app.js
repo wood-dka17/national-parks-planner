@@ -1681,6 +1681,117 @@ function renderAirportSuggestion() {
 }
 
 /**
+ * Park boundary layer — fetches NPS unit boundary polygons from the public
+ * NPS ArcGIS REST API and renders them as a semi-transparent fill + outline.
+ *
+ * Data source: NPS public feature service (no key required).
+ * Fetched lazily the first time the toggle is checked; cached thereafter.
+ */
+let boundaryDataCache = null;   // GeoJSON FeatureCollection once loaded
+let boundaryLoading   = false;
+let boundaryVisible   = false;
+
+function initBoundaryLayer() {
+  if (!map) return;
+
+  // Add placeholder empty sources / layers now so setLayoutProperty works later
+  map.addSource("park-boundaries", {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] }
+  });
+
+  // Filled polygon (semi-transparent purple)
+  map.addLayer({
+    id: "park-boundaries-fill",
+    type: "fill",
+    source: "park-boundaries",
+    paint: {
+      "fill-color": "#bb00ff",
+      "fill-opacity": 0.08
+    },
+    layout: { visibility: "none" }
+  }, "route-layer"); // insert below route so route stays on top
+
+  // Outline stroke
+  map.addLayer({
+    id: "park-boundaries-outline",
+    type: "line",
+    source: "park-boundaries",
+    paint: {
+      "line-color": "#bb00ff",
+      "line-width": 1.5,
+      "line-opacity": 0.55
+    },
+    layout: { visibility: "none" }
+  }, "route-layer");
+}
+
+async function loadBoundaryData() {
+  if (boundaryDataCache) return boundaryDataCache;
+  if (boundaryLoading)   return null; // already in flight
+
+  boundaryLoading = true;
+
+  // NPS public ArcGIS FeatureServer — unit boundaries (polygon)
+  // Returns up to 1000 features per request; national parks + monuments etc.
+  // We request only the park codes present in PARKS_DATA to keep the payload small.
+  const codes = PARKS_DATA.map((p) => p.parkCode.toUpperCase());
+  const where  = codes.length
+    ? `UNIT_CODE IN (${codes.map((c) => `'${c}'`).join(",")})`
+    : "1=1";
+
+  const url =
+    "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/" +
+    "NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer/2/query" +
+    `?where=${encodeURIComponent(where)}` +
+    "&outFields=UNIT_CODE,UNIT_NAME" +
+    "&f=geojson" +
+    "&resultRecordCount=200";
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const geojson = await res.json();
+    boundaryDataCache = geojson;
+    boundaryLoading   = false;
+    return geojson;
+  } catch (err) {
+    console.warn("[boundaries] fetch failed:", err);
+    boundaryLoading = false;
+    return null;
+  }
+}
+
+async function setBoundaryVisibility(visible) {
+  boundaryVisible = visible;
+  if (!map) return;
+
+  if (visible && !boundaryDataCache) {
+    // Show a subtle loading state on the toggle label
+    const lbl = document.querySelector('label[for="show-boundaries"] span');
+    if (lbl) lbl.textContent = "Loading boundaries…";
+
+    const data = await loadBoundaryData();
+
+    if (lbl) lbl.textContent = "Show park boundaries";
+
+    if (!data) {
+      // Fetch failed — uncheck the toggle and bail
+      const chk = document.getElementById("show-boundaries");
+      if (chk) chk.checked = false;
+      boundaryVisible = false;
+      return;
+    }
+
+    map.getSource("park-boundaries")?.setData(data);
+  }
+
+  const vis = boundaryVisible ? "visible" : "none";
+  if (map.getLayer("park-boundaries-fill"))   map.setLayoutProperty("park-boundaries-fill",    "visibility", vis);
+  if (map.getLayer("park-boundaries-outline")) map.setLayoutProperty("park-boundaries-outline", "visibility", vis);
+}
+
+/**
  * Initialise all three stamp GeoJSON sources and circle layers.
  * Called once inside map.on("load") after the parks layer is ready.
  */
@@ -1855,6 +1966,7 @@ function initMap() {
     });
 
     ensureMarkers();
+    initBoundaryLayer();
     initStampLayers();
     initAirportLayer();
 
@@ -2129,6 +2241,10 @@ window.addEventListener("DOMContentLoaded", () => {
   layerNpEl?.addEventListener("change", () => setStampLayerVisibility("national-park",    layerNpEl.checked));
   layerSsEl?.addEventListener("change", () => setStampLayerVisibility("national-seashore", layerSsEl.checked));
   layerOtEl?.addEventListener("change", () => setStampLayerVisibility("other",             layerOtEl.checked));
+
+  // Park boundaries toggle
+  const showBoundariesEl = document.getElementById("show-boundaries");
+  showBoundariesEl?.addEventListener("change", () => setBoundaryVisibility(showBoundariesEl.checked));
 
   // Park info card buttons
   document.getElementById("park-card-close")?.addEventListener("click", closeParkCard);

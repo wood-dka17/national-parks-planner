@@ -1187,3 +1187,11 @@ body.is-routing #sidebar::after{
   padding: 6px 0;
 }
 
+/* Park boundary toggle — loading feedback */
+label[for="show-boundaries"] span {
+  transition: opacity 0.2s;
+}
+label[for="show-boundaries"]:has(input:checked) span {
+  color: var(--primary, #bb00ff);
+}
+

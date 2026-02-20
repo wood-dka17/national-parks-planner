@@ -22,6 +22,7 @@ on:
     paths:
       - "scripts/build_nps_data.mjs"
       - "scripts/build_drive_matrix.mjs"
+      - "scripts/build_campgrounds.mjs"
 
 permissions:
   contents: write  # needed to commit updated JSON files back to the repo
@@ -46,6 +47,11 @@ jobs:
         env:
           NPS_API_KEY: ${{ secrets.NPS_API_KEY }}
         run: node scripts/build_nps_data.mjs
+
+      - name: Run campground data build script
+        env:
+          RIDB_API_KEY: ${{ secrets.RIDB_API_KEY }}
+        run: node scripts/build_campgrounds.mjs
 
       - name: Build drive matrix (optional, manual only)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.rebuild_matrix == 'true' }}

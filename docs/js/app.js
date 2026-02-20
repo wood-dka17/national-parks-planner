@@ -24,7 +24,8 @@ const tripRules = {
   speedMph: 55,
   noBacktracking: false,     // penalise direction reversals during optimization
   travelMonth: 0,            // 0 = any; 1–12 = Jan–Dec
-  filterClosedParks: true    // hide/warn parks closed in travelMonth
+  filterClosedParks: true,   // hide/warn parks closed in travelMonth
+  visitHoursPerPark: 1.5     // hours budgeted to explore each destination park
 };
 
 // Months (1-based) each park is typically fully or partially closed to road access.
@@ -821,12 +822,14 @@ function generateDayPlan() {
     return { plan: [], droppedOptional: [] };
   }
 
-  const wakeMins  = hhmmToMins(tripRules.wakeHHMM  || tripRules.startTimeHHMM || "08:00");
-  const sleepMins = hhmmToMins(tripRules.sleepHHMM || "20:00");
-  const breakMins = tripRules.breakMinutesPerDay || 0;
+  const wakeMins    = hhmmToMins(tripRules.wakeHHMM  || tripRules.startTimeHHMM || "08:00");
+  const sleepMins   = hhmmToMins(tripRules.sleepHHMM || "20:00");
+  const breakMins   = tripRules.breakMinutesPerDay || 0;
+  const visitMins   = Math.round((tripRules.visitHoursPerPark || 0) * 60);
 
-  // Available driving window per day (capped by maxDriveHoursPerDay)
-  const windowMins = Math.min(
+  // Total available time per day (capped by maxDriveHoursPerDay drive budget)
+  // Drive budget does NOT include visit time — those are additive to the day.
+  const driveBudgetMins = Math.min(
     Math.max(0, sleepMins - wakeMins - breakMins),
     tripRules.maxDriveHoursPerDay * 60
   );
@@ -845,42 +848,41 @@ function generateDayPlan() {
 
   function pushDay() {
     if (!dayLegs.length) return;
-    const startMins = wakeMins;
-    const endMins   = wakeMins + dayDriveMins + breakMins;
+    // endMins includes drive time, visit time at each intermediate park, and breaks
+    const visitsInDay  = Math.max(0, dayLegs.length - 1); // visits at intermediate stops
+    const totalEndMins = wakeMins + dayDriveMins + visitsInDay * visitMins + breakMins;
     plan.push({
       day,
-      legs: [...dayLegs],
-      miles: dayMiles,
+      legs:       [...dayLegs],
+      miles:      dayMiles,
       driveHours: dayDriveMins / 60,
-      startMins,
-      endMins
+      visitMins,          // store so renderDayPlan can show explore nodes
+      startMins:  wakeMins,
+      endMins:    totalEndMins
     });
     day++;
-    dayLegs = [];
+    dayLegs      = [];
     dayDriveMins = 0;
-    dayMiles = 0;
+    dayMiles     = 0;
   }
 
   for (let i = 0; i < currentLegs.length; i++) {
-    const leg = currentLegs[i];
+    const leg     = currentLegs[i];
     const legMins = (leg.hours || 0) * 60;
 
-    // Would adding this leg exceed the day budget?
-    if (dayLegs.length && dayDriveMins + legMins > windowMins) {
-      // If the destination is optional, skip it rather than rolling to a new day
+    // Would adding this leg (+ a visit at the destination) exceed drive budget?
+    if (dayLegs.length && dayDriveMins + legMins > driveBudgetMins) {
       const destIsMustSee = mustSeeById.get(leg.toId) !== false;
       if (!destIsMustSee) {
         droppedOptional.push(leg.toName);
         continue;
       }
-      // Must-see: start a new day
       pushDay();
     }
 
-    // Single leg exceeds the full window — add it anyway to avoid infinite loop
     dayLegs.push(i);
     dayDriveMins += legMins;
-    dayMiles += leg.miles || 0;
+    dayMiles     += leg.miles || 0;
   }
 
   pushDay();
@@ -915,22 +917,37 @@ function renderDayPlan(plan, droppedOptional = []) {
     let clockMins = d.startMins;
     const timedRows = [];
 
+    const visitMinutes = d.visitMins ?? 0;  // per-park visit budget from generateDayPlan
+    const totalLegs = d.legs.length;
+
     d.legs.forEach((idx, legPos) => {
       const leg      = currentLegs[idx];
       const legMins  = Math.round((leg.hours || 0) * 60);
-      const departAt = clockMins;
-      const arriveAt = clockMins + legMins;
-      clockMins = arriveAt;
+      const isLastLeg = legPos === totalLegs - 1;
 
       // First leg: show the departure location as a start node
       if (legPos === 0) {
         timedRows.push(
           `<div class="dayleg-node dayleg-node--start">` +
-          `<span class="dayleg-node__time">${minsToHHMM(departAt)}</span>` +
+          `<span class="dayleg-node__time">${minsToHHMM(clockMins)}</span>` +
           `<span class="dayleg-node__name">${leg.fromName}</span>` +
           `</div>`
         );
+        // Visit time at the starting park (if it's not the true origin)
+        if (visitMinutes > 0 && legPos === 0 && totalLegs > 1) {
+          timedRows.push(
+            `<div class="dayleg-visit">` +
+            `<span class="dayleg-visit__bar"></span>` +
+            `<span class="dayleg-visit__label">Explore park (${hoursToLabel(visitMinutes / 60)})</span>` +
+            `</div>`
+          );
+          clockMins += visitMinutes;
+        }
       }
+
+      const departAt = clockMins;
+      const arriveAt = clockMins + legMins;
+      clockMins = arriveAt;
 
       // Drive segment
       timedRows.push(
@@ -947,6 +964,17 @@ function renderDayPlan(plan, droppedOptional = []) {
         `<span class="dayleg-node__name">${leg.toName}</span>` +
         `</div>`
       );
+
+      // Visit time at this destination (not shown for the final stop of the day)
+      if (visitMinutes > 0 && !isLastLeg) {
+        timedRows.push(
+          `<div class="dayleg-visit">` +
+          `<span class="dayleg-visit__bar"></span>` +
+          `<span class="dayleg-visit__label">Explore park (${hoursToLabel(visitMinutes / 60)})</span>` +
+          `</div>`
+        );
+        clockMins += visitMinutes;
+      }
     });
 
     card.innerHTML = `
@@ -1184,6 +1212,351 @@ ${airportHtml}
   win.focus();
   // Small delay so browser fully renders before print dialog
   setTimeout(() => win.print(), 400);
+}
+
+/* ===============================
+   FEATURE #8 — BUILD MY TRIP WIZARD
+================================ */
+/**
+ * Regions → US states mapping for park filtering.
+ * Each region maps to a set of state codes present in parks.json `state` field.
+ */
+const WIZARD_REGIONS = [
+  { id: "northeast",   label: "Northeast",     emoji: "🍂", states: ["ME","NH","VT","MA","RI","CT","NY","NJ","PA","MD","DE","WV","VA"] },
+  { id: "southeast",   label: "Southeast",     emoji: "🌴", states: ["NC","SC","GA","FL","AL","MS","TN","KY","AR","LA"] },
+  { id: "midwest",     label: "Midwest",       emoji: "🌾", states: ["OH","MI","IN","WI","MN","IA","MO","ND","SD","NE","KS","IL"] },
+  { id: "southwest",   label: "Southwest",     emoji: "🏜️",  states: ["TX","OK","NM","AZ","CO","UT"] },
+  { id: "west",        label: "West",          emoji: "🏔️",  states: ["WY","MT","ID","WA","OR","CA","NV"] },
+  { id: "alaska",      label: "Alaska & Hawaii", emoji: "🌋", states: ["AK","HI"] },
+  { id: "anywhere",    label: "Anywhere in the US", emoji: "🗺️", states: [] },  // empty = all
+];
+
+let wizardState = { regionId: null, days: 7, selectedIds: new Set() };
+
+function openWizard() {
+  wizardState = { regionId: null, days: 7, selectedIds: new Set() };
+  showWizardStep(1);
+  document.getElementById("wizard-overlay")?.classList.remove("is-hidden");
+  document.body.classList.add("wizard-open");
+
+  // Render region buttons
+  const regionContainer = document.getElementById("wizard-regions");
+  if (regionContainer) {
+    regionContainer.innerHTML = WIZARD_REGIONS.map((r) =>
+      `<button class="wizard-region-btn" data-region="${r.id}" type="button">
+        <span class="wizard-region-emoji">${r.emoji}</span>
+        <span class="wizard-region-label">${r.label}</span>
+      </button>`
+    ).join("");
+
+    regionContainer.querySelectorAll(".wizard-region-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        regionContainer.querySelectorAll(".wizard-region-btn").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        wizardState.regionId = btn.dataset.region;
+        const nextBtn = document.getElementById("wizard-next-1");
+        if (nextBtn) nextBtn.disabled = false;
+      });
+    });
+  }
+}
+
+function closeWizard() {
+  document.getElementById("wizard-overlay")?.classList.add("is-hidden");
+  document.body.classList.remove("wizard-open");
+}
+
+function showWizardStep(step) {
+  [1, 2, 3].forEach((n) => {
+    document.getElementById(`wizard-step-${n}`)?.classList.toggle("is-hidden", n !== step);
+  });
+}
+
+function wizardGetFilteredParks() {
+  const region = WIZARD_REGIONS.find((r) => r.id === wizardState.regionId);
+  if (!region || region.states.length === 0) return PARKS_DATA;   // "anywhere"
+  return PARKS_DATA.filter((p) => {
+    const parkStates = (p.state || "").split(",").map((s) => s.trim());
+    return parkStates.some((s) => region.states.includes(s));
+  });
+}
+
+function renderWizardParks() {
+  const filtered    = wizardGetFilteredParks();
+  const days        = wizardState.days;
+  const hint        = document.getElementById("wizard-step3-hint");
+  const buildBtn    = document.getElementById("wizard-build");
+  const listEl      = document.getElementById("wizard-park-list");
+
+  // Rough suggestion: ~1 park per day as a guide, not a cap
+  if (hint) hint.textContent = `${filtered.length} parks in this region — select the ones you'd like to visit (${days}-day trip).`;
+
+  wizardState.selectedIds = new Set();
+  if (buildBtn) buildBtn.disabled = true;
+
+  if (!listEl) return;
+  listEl.innerHTML = filtered.map((p) =>
+    `<label class="wizard-park-row" data-id="${p.id}">
+      <input type="checkbox" class="wizard-park-chk" data-id="${p.id}" />
+      <span class="wizard-park-name">${p.name}</span>
+      <span class="wizard-park-state">${p.state}</span>
+    </label>`
+  ).join("");
+
+  listEl.querySelectorAll(".wizard-park-chk").forEach((chk) => {
+    chk.addEventListener("change", () => {
+      const id = Number(chk.dataset.id);
+      if (chk.checked) wizardState.selectedIds.add(id);
+      else wizardState.selectedIds.delete(id);
+      if (buildBtn) buildBtn.disabled = wizardState.selectedIds.size < 1;
+    });
+  });
+}
+
+function wizardBuildTrip() {
+  if (!wizardState.selectedIds.size) return;
+
+  // Clear any existing route
+  selectedParks.forEach((p) => {
+    if (p.source !== "stamp") map?.setFeatureState({ source: "parks", id: p.id }, { selected: false });
+  });
+  selectedParks = [];
+  currentLegs   = [];
+  dayPlan       = [];
+
+  // Add each selected park in PARKS_DATA order (geographic order approximates a sensible route)
+  wizardState.selectedIds.forEach((id) => {
+    const park = PARKS_DATA[id];
+    if (!park) return;
+    selectedParks.push({ id, name: park.name, coords: [park.lon, park.lat], locked: false, source: "park" });
+    map?.setFeatureState({ source: "parks", id }, { selected: true });
+  });
+
+  // Set the trip days in maxDriveHoursPerDay as a sensible default
+  // (wizard days → auto-schedule settings)
+  tripRules.maxDriveHoursPerDay = Math.min(8, Math.max(4, 6));
+
+  closeWizard();
+  renderStopsList();
+  updateMarkerNumbers();
+  renderStatus();
+  updateActionAvailability();
+  debounceRouteUpdate(120);
+
+  // Switch to planner view and auto-optimize if ≥3 parks
+  setMode("planner");
+  if (selectedParks.length >= 3 && optimizeToggle) {
+    optimizeToggle.checked = true;
+  }
+}
+
+function initWizard() {
+  document.getElementById("open-wizard")?.addEventListener("click", openWizard);
+  document.getElementById("wizard-close")?.addEventListener("click", closeWizard);
+  document.getElementById("wizard-cancel")?.addEventListener("click", closeWizard);
+
+  // Step 1 → 2
+  document.getElementById("wizard-next-1")?.addEventListener("click", () => {
+    if (!wizardState.regionId) return;
+    wizardState.days = Number(document.getElementById("wizard-days")?.value || 7);
+    showWizardStep(2);
+  });
+
+  // Step 2 → 3
+  document.getElementById("wizard-next-2")?.addEventListener("click", () => {
+    wizardState.days = Number(document.getElementById("wizard-days")?.value || 7);
+    renderWizardParks();
+    showWizardStep(3);
+  });
+
+  // Step 3 ← 2
+  document.getElementById("wizard-back-2")?.addEventListener("click", () => showWizardStep(1));
+  document.getElementById("wizard-back-3")?.addEventListener("click", () => showWizardStep(2));
+
+  // Build
+  document.getElementById("wizard-build")?.addEventListener("click", wizardBuildTrip);
+
+  // Close on overlay backdrop click
+  document.getElementById("wizard-overlay")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeWizard();
+  });
+
+  // Close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !document.getElementById("wizard-overlay")?.classList.contains("is-hidden")) {
+      closeWizard();
+    }
+  });
+}
+
+/* ===============================
+   FEATURE #9 — CAMPGROUND LAYER
+================================ */
+let campgroundCache  = null;
+let campgroundLoading = false;
+let campgroundVisible = false;
+
+function initCampgroundLayer() {
+  if (!map) return;
+
+  map.addSource("campgrounds", {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] },
+    cluster: true,
+    clusterMaxZoom: 10,
+    clusterRadius: 35
+  });
+
+  // Cluster circles
+  map.addLayer({
+    id: "campground-clusters",
+    type: "circle",
+    source: "campgrounds",
+    filter: ["has", "point_count"],
+    layout: { visibility: "none" },
+    paint: {
+      "circle-color": "#00b894",
+      "circle-opacity": 0.75,
+      "circle-radius": ["step", ["get", "point_count"], 12, 10, 18, 50, 24]
+    }
+  });
+
+  map.addLayer({
+    id: "campground-cluster-count",
+    type: "symbol",
+    source: "campgrounds",
+    filter: ["has", "point_count"],
+    layout: {
+      visibility: "none",
+      "text-field": "{point_count_abbreviated}",
+      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
+      "text-size": 11
+    },
+    paint: { "text-color": "#fff" }
+  });
+
+  // Individual campground points
+  map.addLayer({
+    id: "campground-layer",
+    type: "circle",
+    source: "campgrounds",
+    filter: ["!", ["has", "point_count"]],
+    layout: { visibility: "none" },
+    paint: {
+      "circle-color": "#00b894",
+      "circle-radius": 6,
+      "circle-opacity": 0.85,
+      "circle-stroke-color": "#fff",
+      "circle-stroke-width": 1.5
+    }
+  });
+
+  // Hover cursor + click popup
+  let campPopup = null;
+  ["campground-layer"].forEach((lid) => {
+    map.on("mouseenter", lid, () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", lid, () => { map.getCanvas().style.cursor = ""; });
+    map.on("click", lid, (e) => {
+      e.originalEvent.stopPropagation();
+      const feat = e.features?.[0];
+      if (!feat) return;
+      const { name, url } = feat.properties;
+      if (campPopup) campPopup.remove();
+      campPopup = new mapboxgl.Popup({ closeButton: true, maxWidth: "240px" })
+        .setLngLat(feat.geometry.coordinates)
+        .setHTML(
+          `<div style="font-family:system-ui;font-size:13px">` +
+          `<strong style="font-size:14px">${name}</strong><br>` +
+          (url ? `<a href="${url}" target="_blank" rel="noopener" style="color:#00b894">NPS page ↗</a>` : "") +
+          `</div>`
+        )
+        .addTo(map);
+    });
+  });
+
+  map.on("click", "campground-clusters", (e) => {
+    e.originalEvent.stopPropagation();
+    const feat = e.features?.[0];
+    if (!feat) return;
+    map.getSource("campgrounds")?.getClusterExpansionZoom(feat.properties.cluster_id, (err, zoom) => {
+      if (!err) map.easeTo({ center: feat.geometry.coordinates, zoom: zoom + 1 });
+    });
+  });
+  map.on("mouseenter", "campground-clusters", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "campground-clusters", () => { map.getCanvas().style.cursor = ""; });
+}
+
+async function loadCampgroundData() {
+  if (campgroundCache)  return campgroundCache;
+  if (campgroundLoading) return null;
+  campgroundLoading = true;
+
+  // NPS public ArcGIS FeatureServer — campgrounds point layer
+  const url =
+    "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/" +
+    "NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer/2/query" +
+    "?where=1=1&outFields=UNIT_CODE,UNIT_NAME&f=geojson&resultRecordCount=1";
+    // ↑ That's the boundary service; campgrounds need a different endpoint ↓
+
+  // NPS public campgrounds from the developer.nps.gov API (no key, demo endpoint)
+  // We fetch all campgrounds for the park codes we have in PARKS_DATA
+  const codes = PARKS_DATA.map((p) => p.parkCode).join(",");
+  const campUrl =
+    `https://developer.nps.gov/api/v1/campgrounds?parkCode=${encodeURIComponent(codes)}&limit=500&api_key=DEMO_KEY`;
+
+  try {
+    const res = await fetch(campUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const features = (json.data ?? [])
+      .filter((c) => c.latitude && c.longitude)
+      .map((c) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [parseFloat(c.longitude), parseFloat(c.latitude)] },
+        properties: { name: c.name, url: c.url, parkCode: c.parkCode }
+      }));
+
+    campgroundCache = { type: "FeatureCollection", features };
+
+    // Update count badge
+    const countEl = document.getElementById("count-campgrounds");
+    if (countEl) countEl.textContent = `(${features.length})`;
+
+    campgroundLoading = false;
+    return campgroundCache;
+  } catch (err) {
+    console.warn("[campgrounds] fetch failed:", err);
+    campgroundLoading = false;
+    return null;
+  }
+}
+
+async function setCampgroundVisibility(visible) {
+  campgroundVisible = visible;
+  if (!map) return;
+
+  if (visible && !campgroundCache) {
+    const lbl = document.querySelector('label[for="layer-campgrounds"] .layer-toggle__label');
+    const origText = lbl ? lbl.innerHTML : "";
+    if (lbl) lbl.innerHTML = `<span class="layer-dot layer-dot--camp">⛺</span> Loading campgrounds…`;
+
+    const data = await loadCampgroundData();
+
+    if (lbl) lbl.innerHTML = origText;
+
+    if (!data) {
+      const chk = document.getElementById("layer-campgrounds");
+      if (chk) chk.checked = false;
+      campgroundVisible = false;
+      return;
+    }
+    map.getSource("campgrounds")?.setData(data);
+  }
+
+  const vis = campgroundVisible ? "visible" : "none";
+  ["campground-clusters", "campground-cluster-count", "campground-layer"].forEach((id) => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
+  });
 }
 
 /* ===============================
@@ -2290,6 +2663,7 @@ function initMap() {
     initBoundaryLayer();
     initStampLayers();
     initAirportLayer();
+    initCampgroundLayer();
 
     // If geolocation already resolved before the map loaded, materialize the marker now
     if (originPoint && !originMarker) {
@@ -2432,6 +2806,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const sleepTimeEl      = document.getElementById("sleep-time");
   const travelMonthEl    = document.getElementById("travel-month");
   const noBacktrackingEl = document.getElementById("no-backtracking");
+  const visitHoursEl     = document.getElementById("visit-hours");
   const filterClosedEl   = document.getElementById("filter-closed");
 
   if (wakeTimeEl)  tripRules.wakeHHMM  = wakeTimeEl.value  || "08:00";
@@ -2439,6 +2814,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (travelMonthEl)    tripRules.travelMonth       = Number(travelMonthEl.value || 0);
   if (noBacktrackingEl) tripRules.noBacktracking     = noBacktrackingEl.checked;
   if (filterClosedEl)   tripRules.filterClosedParks  = filterClosedEl.checked;
+  if (visitHoursEl)     tripRules.visitHoursPerPark  = Number(visitHoursEl.value ?? 1.5);
 
   // UI events
   modePlannerBtn?.addEventListener("click", () => setMode("planner"));
@@ -2482,6 +2858,11 @@ window.addEventListener("DOMContentLoaded", () => {
     tripRules.filterClosedParks = filterClosedEl.checked;
     renderViolations(computeViolations(currentLegs));
     renderStopsList();
+  });
+
+  visitHoursEl?.addEventListener("change", () => {
+    tripRules.visitHoursPerPark = Number(visitHoursEl.value ?? 1.5);
+    if (dayPlan.length) { const { plan, droppedOptional } = generateDayPlan(); renderDayPlan(plan, droppedOptional); }
   });
 
   maxHoursEl?.addEventListener("change", () => {
@@ -2577,6 +2958,13 @@ window.addEventListener("DOMContentLoaded", () => {
   // Park boundaries toggle
   const showBoundariesEl = document.getElementById("show-boundaries");
   showBoundariesEl?.addEventListener("change", () => setBoundaryVisibility(showBoundariesEl.checked));
+
+  // Campground layer toggle
+  const layerCampEl = document.getElementById("layer-campgrounds");
+  layerCampEl?.addEventListener("change", () => setCampgroundVisibility(layerCampEl.checked));
+
+  // Wizard
+  initWizard();
 
   // Park info card buttons
   document.getElementById("park-card-close")?.addEventListener("click", closeParkCard);

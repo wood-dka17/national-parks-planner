@@ -1281,6 +1281,241 @@ body.is-routing #sidebar::after{
   font-style: italic;
 }
 
+/* ── Visit-time node in day plan timeline ───────────────────────── */
+.dayleg-visit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.dayleg-visit__bar {
+  width: 2px;
+  height: 20px;
+  background: rgba(0, 200, 100, 0.4);
+  border-radius: 1px;
+  margin-left: 35px;
+  flex-shrink: 0;
+}
+
+.dayleg-visit__label {
+  font-size: 11px;
+  color: #00c864;
+  font-style: italic;
+}
+
+/* ── Campground layer dot ────────────────────────────────────────── */
+.layer-dot--camp {
+  background: transparent;
+  font-size: 14px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Build My Trip wizard launch button ─────────────────────────── */
+.wizard-launch-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 14px;
+  background: linear-gradient(135deg, rgba(187,0,255,0.18), rgba(30,144,255,0.14));
+  border: 1px solid rgba(187,0,255,0.45);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 150ms, border-color 150ms, transform 100ms;
+}
+.wizard-launch-btn:hover {
+  background: linear-gradient(135deg, rgba(187,0,255,0.28), rgba(30,144,255,0.22));
+  border-color: rgba(187,0,255,0.7);
+}
+.wizard-launch-btn:active { transform: scale(0.98); }
+
+/* ── Wizard overlay + modal ─────────────────────────────────────── */
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.wizard-modal {
+  position: relative;
+  width: min(520px, 95vw);
+  max-height: 90vh;
+  background: linear-gradient(160deg, #151c28, #0d111a);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wizard-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.wizard-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 28px 28px 24px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wizard-header {
+  margin-bottom: 20px;
+}
+
+.wizard-step-indicator {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.ws-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: background 200ms;
+}
+.ws-dot--active { background: var(--primary, #bb00ff); }
+.ws-dot--done   { background: rgba(187,0,255,0.45); }
+
+.wizard-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+.wizard-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Region grid */
+.wizard-regions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 340px;
+  padding-right: 2px;
+}
+
+.wizard-region-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  transition: background 120ms, border-color 120ms;
+}
+.wizard-region-btn:hover { background: rgba(255,255,255,0.09); }
+.wizard-region-btn.is-active {
+  background: rgba(187,0,255,0.16);
+  border-color: rgba(187,0,255,0.55);
+}
+.wizard-region-emoji { font-size: 26px; line-height: 1; }
+
+/* Days input */
+.wizard-days-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+.wizard-days-input {
+  width: 80px;
+  padding: 10px 14px;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #fff;
+}
+.wizard-days-label { font-size: 18px; font-weight: 700; color: var(--muted); }
+
+/* Park list */
+.wizard-park-list {
+  overflow-y: auto;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.wizard-park-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 100ms;
+}
+.wizard-park-row:hover { background: rgba(255,255,255,0.08); }
+.wizard-park-row:has(input:checked) {
+  background: rgba(187,0,255,0.12);
+  border-color: rgba(187,0,255,0.45);
+}
+.wizard-park-chk { flex-shrink: 0; accent-color: var(--primary); width: 16px; height: 16px; }
+.wizard-park-name { font-size: 13px; font-weight: 700; flex: 1; }
+.wizard-park-state { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+/* Footer */
+.wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 20px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.wizard-footer button { flex: 1; }
+
 /* Park boundary toggle — loading feedback */
 label[for="show-boundaries"] span {
   transition: opacity 0.2s;

@@ -28,6 +28,7 @@
         <header class="app-header">
           <h1>National Parks Planner</h1>
           <p>Search or click parks on the map to build a route.</p>
+          <button id="open-wizard" class="wizard-launch-btn" type="button" title="Guided trip builder">✦ Build My Trip</button>
 
           <!-- Park search -->
           <div class="search-wrap">
@@ -162,6 +163,21 @@
             </div>
           </div>
 
+          <!-- Campground Layer Toggle -->
+          <div class="section">
+            <h2>Campgrounds</h2>
+            <p class="layer-desc">Show NPS campgrounds near your route.</p>
+            <div class="controls layer-toggles">
+              <label class="toggle layer-toggle" for="layer-campgrounds">
+                <span class="layer-toggle__label">
+                  <span class="layer-dot layer-dot--camp">⛺</span>
+                  NPS Campgrounds <span class="layer-count" id="count-campgrounds"></span>
+                </span>
+                <input id="layer-campgrounds" type="checkbox" />
+              </label>
+            </div>
+          </div>
+
           <!-- Trip Origin -->
           <div class="section" id="origin-section">
             <h2>Trip Origin</h2>
@@ -284,6 +300,10 @@
               <label for="break-mins">Break minutes/day</label>
               <input id="break-mins" type="number" min="0" step="5" value="0" />
             </div>
+            <div class="field">
+              <label for="visit-hours">Hrs spent per park</label>
+              <input id="visit-hours" type="number" min="0" max="12" step="0.5" value="1.5" title="Time budgeted to explore each park (shown in day plan timeline)" />
+            </div>
             <!-- keep start-time as a hidden alias so legacy code still works -->
             <input id="start-time" type="hidden" value="08:00" />
           </div>
@@ -399,5 +419,61 @@
 
     <!-- App (nps.js runtime NPS fetch removed — data comes from docs/data/*.json) -->
     <script src="./js/app.js"></script>
+
+    <!-- ── Build My Trip Wizard ───────────────────────────────────────────── -->
+    <div id="wizard-overlay" class="wizard-overlay is-hidden" role="dialog" aria-modal="true" aria-label="Build My Trip wizard">
+      <div class="wizard-modal">
+        <button class="wizard-close" id="wizard-close" type="button" aria-label="Close wizard">✕</button>
+
+        <!-- Step 1: Region -->
+        <div class="wizard-step" id="wizard-step-1">
+          <div class="wizard-header">
+            <div class="wizard-step-indicator"><span class="ws-dot ws-dot--active"></span><span class="ws-dot"></span><span class="ws-dot"></span></div>
+            <h2 class="wizard-title">Where do you want to go?</h2>
+            <p class="wizard-subtitle">Choose a region to filter parks.</p>
+          </div>
+          <div class="wizard-regions" id="wizard-regions">
+            <!-- Populated by JS -->
+          </div>
+          <div class="wizard-footer">
+            <button class="secondary" id="wizard-cancel" type="button">Cancel</button>
+            <button class="primary" id="wizard-next-1" type="button" disabled>Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Trip length -->
+        <div class="wizard-step is-hidden" id="wizard-step-2">
+          <div class="wizard-header">
+            <div class="wizard-step-indicator"><span class="ws-dot ws-dot--done"></span><span class="ws-dot ws-dot--active"></span><span class="ws-dot"></span></div>
+            <h2 class="wizard-title">How many days?</h2>
+            <p class="wizard-subtitle">We'll suggest parks that fit your schedule.</p>
+          </div>
+          <div class="wizard-days-wrap">
+            <input id="wizard-days" type="number" min="1" max="30" value="7" class="wizard-days-input" />
+            <span class="wizard-days-label">days</span>
+          </div>
+          <div class="wizard-footer">
+            <button class="secondary" id="wizard-back-2" type="button">← Back</button>
+            <button class="primary" id="wizard-next-2" type="button">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Park selection -->
+        <div class="wizard-step is-hidden" id="wizard-step-3">
+          <div class="wizard-header">
+            <div class="wizard-step-indicator"><span class="ws-dot ws-dot--done"></span><span class="ws-dot ws-dot--done"></span><span class="ws-dot ws-dot--active"></span></div>
+            <h2 class="wizard-title">Pick your parks</h2>
+            <p class="wizard-subtitle" id="wizard-step3-hint">Select the parks you want to visit.</p>
+          </div>
+          <div class="wizard-park-list" id="wizard-park-list">
+            <!-- Populated by JS -->
+          </div>
+          <div class="wizard-footer">
+            <button class="secondary" id="wizard-back-3" type="button">← Back</button>
+            <button class="primary" id="wizard-build" type="button" disabled>Build Trip →</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

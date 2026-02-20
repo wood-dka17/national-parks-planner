@@ -156,13 +156,17 @@ async function main() {
   /* ── 3. NPS Lodges (in-park lodging facilities) ──────────────── */
   console.log("Fetching NPS lodge facilities from RIDB…");
   try {
-    // The /facilities endpoint supports FacilityTypeDescription filtering.
-    // We fetch NPS facilities of type "Lodging" to get in-park lodges.
-    const npsLodges = await ridbGetAll("facilities", {
+    // Fetch all NPS facilities and filter client-side by FacilityTypeDescription.
+    // The query param is not reliably server-side-filtered by the RIDB API.
+    const allNpsFacilities = await ridbGetAll("facilities", {
       OrgAbbrevCode: "NPS",
-      FacilityTypeDescription: "Lodging",
     });
-    console.log(`  → ${npsLodges.length} NPS lodge records`);
+    const lodgeKeywords = /lodg|inn|hotel|cabin|chalet|motel|resort|lodge/i;
+    const npsLodges = allNpsFacilities.filter(
+      (f) => lodgeKeywords.test(f.FacilityTypeDescription ?? "") ||
+              lodgeKeywords.test(f.FacilityName ?? "")
+    );
+    console.log(`  → ${allNpsFacilities.length} NPS facility records, ${npsLodges.length} lodges after filter`);
 
     for (const f of npsLodges) {
       if (seen.has(f.FacilityID)) continue;

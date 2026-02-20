@@ -3886,6 +3886,34 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }, true);
 
+  // ── Dark mode toggle ───────────────────────────────────────────────────────
+  const darkToggleBtn = document.getElementById("dark-toggle");
+  const DARK_KEY = "npp_dark_v1";
+
+  function applyDarkMode(isDark) {
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "");
+    if (darkToggleBtn) {
+      // Swap icon between moon (light→dark) and sun (dark→light)
+      darkToggleBtn.innerHTML = isDark
+        ? '<i data-lucide="sun" width="16" height="16"></i>'
+        : '<i data-lucide="moon" width="16" height="16"></i>';
+      darkToggleBtn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+      if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [darkToggleBtn] });
+    }
+  }
+
+  // Restore saved preference, then fall back to system preference
+  const savedDark = localStorage.getItem(DARK_KEY);
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyDarkMode(savedDark !== null ? savedDark === "1" : prefersDark);
+
+  darkToggleBtn?.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const next = !isDark;
+    applyDarkMode(next);
+    try { localStorage.setItem(DARK_KEY, next ? "1" : "0"); } catch {}
+  });
+
   // ── Map boot ───────────────────────────────────────────────────────────────
   // Load static JSON data (parks.json + units.json from docs/data/), then boot.
   // Falls back to bundled parks.js / nps-stamps.js if JSON files aren't built yet.

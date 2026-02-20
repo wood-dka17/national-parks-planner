@@ -56,6 +56,56 @@
   --z-wizard:       600;
 }
 
+/* ---------- Dark mode ---------- */
+[data-theme="dark"] {
+  --bg:             #0f172a;
+  --surface:        #1e293b;
+  --surface-raised: #263248;
+
+  --accent:         #52b788;
+  --accent-hover:   #74c69d;
+  --accent-light:   rgba(82,183,136,0.12);
+  --accent-border:  rgba(82,183,136,0.30);
+
+  --alert:          #f87171;
+  --success:        #4ade80;
+  --warn:           #fbbf24;
+  --disabled:       #475569;
+
+  --text:           #e2e8f0;
+  --text-muted:     #94a3b8;
+  --divider:        #334155;
+  --border:         #334155;
+
+  --shadow-card:    0 1px 4px rgba(0,0,0,0.30);
+  --shadow-raised:  0 4px 12px rgba(0,0,0,0.40);
+  --shadow-panel:   0 8px 32px rgba(0,0,0,0.50);
+}
+
+/* Dark-mode toggle button */
+.dark-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: var(--z-toast);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-raised);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.dark-toggle:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+}
+
 /* ---------- Reset & Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 

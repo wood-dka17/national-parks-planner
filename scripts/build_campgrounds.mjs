@@ -121,11 +121,15 @@ async function main() {
   const features = [];
   const seen     = new Set(); // deduplicate by FacilityID
 
-  /* ── 1. NPS Campgrounds ──────────────────────────────────────── */
-  console.log("Fetching NPS campgrounds from RIDB…");
+  /* ── 1+2. NPS + USFS Campgrounds ────────────────────────────── */
+  // The /campgrounds endpoint does not reliably filter by OrgAbbrevCode server-side.
+  // Fetch all campgrounds and split client-side by OrgAbbrevCode.
+  console.log("Fetching all campgrounds from RIDB (NPS + USFS)…");
   try {
-    const npsCamps = await ridbGetAll("campgrounds", { OrgAbbrevCode: "NPS" });
-    console.log(`  → ${npsCamps.length} NPS campground records`);
+    const allCamps = await ridbGetAll("campgrounds", {});
+    const npsCamps  = allCamps.filter((f) => f.OrgAbbrevCode === "NPS");
+    const usfsCamps = allCamps.filter((f) => f.OrgAbbrevCode === "USFS");
+    console.log(`  → ${allCamps.length} total, ${npsCamps.length} NPS, ${usfsCamps.length} USFS`);
 
     for (const f of npsCamps) {
       if (seen.has(f.FacilityID)) continue;
@@ -133,16 +137,6 @@ async function main() {
       const feat = toFeature(f, "NPS");
       if (feat) features.push(feat);
     }
-  } catch (e) {
-    console.warn("  NPS campground fetch failed:", e.message);
-  }
-
-  /* ── 2. National Forest Campgrounds (USFS) ───────────────────── */
-  console.log("Fetching National Forest (USFS) campgrounds from RIDB…");
-  try {
-    const usfsCamps = await ridbGetAll("campgrounds", { OrgAbbrevCode: "USFS" });
-    console.log(`  → ${usfsCamps.length} USFS campground records`);
-
     for (const f of usfsCamps) {
       if (seen.has(f.FacilityID)) continue;
       seen.add(f.FacilityID);
@@ -150,7 +144,7 @@ async function main() {
       if (feat) features.push(feat);
     }
   } catch (e) {
-    console.warn("  USFS campground fetch failed:", e.message);
+    console.warn("  Campground fetch failed:", e.message);
   }
 
   /* ── 3. NPS Lodges (in-park lodging facilities) ──────────────── */

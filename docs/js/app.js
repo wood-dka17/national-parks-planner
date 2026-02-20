@@ -3210,6 +3210,94 @@ function handleDetailAddToTrip() {
   debounceRouteUpdate(120);
 }
 
+// Cache for activities/alerts to avoid re-fetching on repeated tab switches
+const _npsActivitiesCache = new Map();
+const _npsAlertsCache     = new Map();
+const NPS_RT_KEY = "ODwJ89F5Hz61QFa3Mk6YhqRhCGweSwKszdGdnNgT"; // same key as nps.js
+const NPS_BASE   = "https://developer.nps.gov/api/v1";
+
+async function fetchNpsActivities(parkCode) {
+  if (_npsActivitiesCache.has(parkCode)) return _npsActivitiesCache.get(parkCode);
+  try {
+    const url = `${NPS_BASE}/activities/parks?parkCode=${parkCode}&limit=50&api_key=${NPS_RT_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    // Response is array of activity objects with "activities" array per park
+    const parkData = (json.data ?? []).find((d) => d.parkCode?.toLowerCase() === parkCode?.toLowerCase());
+    const acts = (parkData?.activities ?? []).map((a) => a.name).filter(Boolean);
+    _npsActivitiesCache.set(parkCode, acts);
+    return acts;
+  } catch (e) {
+    console.warn(`fetchNpsActivities(${parkCode}):`, e.message);
+    return null; // null = error, [] = empty
+  }
+}
+
+async function fetchNpsAlerts(parkCode) {
+  if (_npsAlertsCache.has(parkCode)) return _npsAlertsCache.get(parkCode);
+  try {
+    const url = `${NPS_BASE}/alerts?parkCode=${parkCode}&limit=20&api_key=${NPS_RT_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const alerts = (json.data ?? []).map((a) => ({
+      title:       a.title ?? "Alert",
+      description: a.description ?? "",
+      category:    a.category ?? "Information",
+      url:         a.url ?? "",
+    }));
+    _npsAlertsCache.set(parkCode, alerts);
+    return alerts;
+  } catch (e) {
+    console.warn(`fetchNpsAlerts(${parkCode}):`, e.message);
+    return null;
+  }
+}
+
+function renderActivitiesPane(acts) {
+  const pane = document.getElementById("detail-pane-activities");
+  if (!pane) return;
+  if (acts === null) {
+    pane.innerHTML = `<p class="empty-state">Could not load activities — check your connection.</p>`;
+    return;
+  }
+  if (!acts.length) {
+    pane.innerHTML = `<p class="empty-state">No activities listed for this park.</p>`;
+    return;
+  }
+  pane.innerHTML =
+    `<ul class="nps-activity-list">` +
+    acts.map((a) => `<li class="nps-activity-item"><i data-lucide="check-circle-2" width="13" height="13"></i> ${a}</li>`).join("") +
+    `</ul>`;
+  if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [pane] });
+}
+
+function renderAlertsPane(alerts) {
+  const pane = document.getElementById("detail-pane-alerts");
+  if (!pane) return;
+  if (alerts === null) {
+    pane.innerHTML = `<p class="empty-state">Could not load alerts — check your connection.</p>`;
+    return;
+  }
+  if (!alerts.length) {
+    pane.innerHTML = `<p class="empty-state">✅ No active alerts for this park.</p>`;
+    return;
+  }
+  const ALERT_ICON = { Danger: "alert-triangle", Caution: "alert-circle", Information: "info", Park_Closure: "x-octagon" };
+  pane.innerHTML = alerts.map((a) => {
+    const iconName = ALERT_ICON[a.category] ?? "info";
+    return (
+      `<div class="nps-alert nps-alert--${a.category.toLowerCase().replace("_", "-")}">` +
+      `<div class="nps-alert__header"><i data-lucide="${iconName}" width="14" height="14"></i> <strong>${a.title}</strong></div>` +
+      (a.description ? `<p class="nps-alert__body">${a.description}</p>` : "") +
+      (a.url ? `<a class="nps-alert__link" href="${a.url}" target="_blank" rel="noopener">More info ↗</a>` : "") +
+      `</div>`
+    );
+  }).join("");
+  if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [pane] });
+}
+
 function switchDetailTab(tabName) {
   document.querySelectorAll(".detail-tab").forEach((btn) => {
     const isActive = btn.dataset.tab === tabName;
@@ -3219,6 +3307,33 @@ function switchDetailTab(tabName) {
   document.querySelectorAll(".detail-tab-pane").forEach((pane) => {
     pane.classList.toggle("is-active", pane.dataset.pane === tabName);
   });
+
+  // Lazy-load Activities / Alerts when those tabs are first opened
+  const parkCode = (() => {
+    if (detailPanelCardMode === "park" && detailPanelCurrentParkIndex != null) {
+      return PARKS_DATA[detailPanelCurrentParkIndex]?.parkCode ?? null;
+    }
+    if (detailPanelCardMode === "stamp" && detailPanelStampData) {
+      return detailPanelStampData.parkCode ?? null;
+    }
+    return null;
+  })();
+
+  if (!parkCode) return;
+
+  if (tabName === "activities") {
+    const pane = document.getElementById("detail-pane-activities");
+    if (pane && !_npsActivitiesCache.has(parkCode)) {
+      pane.innerHTML = `<p class="empty-state">Loading activities…</p>`;
+    }
+    fetchNpsActivities(parkCode).then(renderActivitiesPane);
+  } else if (tabName === "alerts") {
+    const pane = document.getElementById("detail-pane-alerts");
+    if (pane && !_npsAlertsCache.has(parkCode)) {
+      pane.innerHTML = `<p class="empty-state">Loading alerts…</p>`;
+    }
+    fetchNpsAlerts(parkCode).then(renderAlertsPane);
+  }
 }
 
 function initDetailPanel() {

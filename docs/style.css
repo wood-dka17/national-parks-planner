@@ -1255,6 +1255,70 @@ select:focus {
 
 .detail-tab-pane.is-active { display: block; }
 
+/* ── Activities tab ─────────────────────────────── */
+.nps-activity-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nps-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ── Alerts tab ─────────────────────────────────── */
+.nps-alert {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  border-left: 3px solid var(--border);
+  background: var(--bg);
+}
+
+.nps-alert--danger        { border-color: var(--alert);   }
+.nps-alert--caution       { border-color: var(--warn);    }
+.nps-alert--information   { border-color: var(--accent);  }
+.nps-alert--park-closure  { border-color: var(--alert);   background: rgba(192,57,43,0.05); }
+
+.nps-alert__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.nps-alert--danger .nps-alert__header,
+.nps-alert--park-closure .nps-alert__header  { color: var(--alert); }
+.nps-alert--caution .nps-alert__header       { color: var(--warn);  }
+.nps-alert--information .nps-alert__header   { color: var(--accent); }
+
+.nps-alert__body {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.nps-alert__link {
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.nps-alert__link:hover { text-decoration: underline; }
+
 .detail-desc {
   margin: 0;
   font-size: 13px;

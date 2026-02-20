@@ -1987,6 +1987,9 @@ function openParkCard(parkIndex) {
     feeItemEl.classList.remove("is-loading");
     hoursItemEl.classList.remove("is-loading");
   });
+
+  // Also open the right detail panel
+  openDetailPanel(parkIndex);
 }
 
 function closeParkCard() {
@@ -1999,6 +2002,7 @@ function closeParkCard() {
   document.getElementById("park-card-designation")?.classList.add("is-hidden");
   document.getElementById("park-card-passport")?.classList.add("is-hidden");
   document.getElementById("park-card")?.classList.add("is-hidden");
+  closeDetailPanel();
 }
 
 function openStampCard(stamp) {
@@ -2032,6 +2036,9 @@ function openStampCard(stamp) {
   cardEl.style.animation = "none";
   cardEl.offsetHeight; // force reflow
   cardEl.style.animation = "";
+
+  // Also open the right detail panel
+  openDetailPanelStamp(stamp);
 }
 
 function syncCardAddButton(btn, isAdded) {
@@ -2071,6 +2078,7 @@ function handleParkCardAddToTrip() {
   }
 
   updateMarkerNumbers();
+  updateStampSelectedLayer();
   renderStopsList();
   renderStatus();
   updateActionAvailability();
@@ -2098,6 +2106,7 @@ function handleStampCardAddToTrip() {
   }
 
   updateMarkerNumbers();
+  updateStampSelectedLayer();
   renderStopsList();
   renderStatus();
   updateActionAvailability();
@@ -2384,7 +2393,7 @@ function initBoundaryLayer() {
     type: "fill",
     source: "park-boundaries",
     paint: {
-      "fill-color": "#bb00ff",
+      "fill-color": "#2d6a4f",
       "fill-opacity": 0.08
     },
     layout: { visibility: "none" }
@@ -2396,7 +2405,7 @@ function initBoundaryLayer() {
     type: "line",
     source: "park-boundaries",
     paint: {
-      "line-color": "#bb00ff",
+      "line-color": "#2d6a4f",
       "line-width": 1.5,
       "line-opacity": 0.55
     },
@@ -2491,12 +2500,12 @@ function initStampLayers() {
 
   // Layer configs: [groupKey, color, radius, opacity]
   const LAYER_CONFIG = [
-    // National Parks — purple/violet, matches existing park dots
-    ["national-park",    "#bb00ff", 7, 0.90],
-    // National Seashores — teal/cyan
-    ["national-seashore","#00d4c8", 6, 0.85],
+    // National Parks — deep green
+    ["national-park",    "#2d6a4f", 8, 0.90],
+    // National Seashores — ocean blue
+    ["national-seashore","#0077b6", 6, 0.85],
     // Other stamp locations — amber/gold
-    ["other",            "#ffb300", 5, 0.80]
+    ["other",            "#d4a017", 5, 0.80]
   ];
 
   LAYER_CONFIG.forEach(([key, color, radius, opacity]) => {
@@ -2571,6 +2580,46 @@ function initStampLayers() {
   });
 
   console.info(`[Stamps] Loaded ${NPS_STAMPS.length} NPS stamp units across 3 layers.`);
+
+  // Selection-ring layer: white stroke circle for added stops
+  map.addSource("stamp-selected", {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] }
+  });
+  map.addLayer({
+    id: "stamp-selected-layer",
+    type: "circle",
+    source: "stamp-selected",
+    paint: {
+      "circle-radius": 12,
+      "circle-color": "rgba(255,255,255,0)",
+      "circle-stroke-width": 3,
+      "circle-stroke-color": "#ffffff"
+    }
+  });
+}
+
+/**
+ * Refresh the white selection-ring source from selectedParks array.
+ */
+function updateStampSelectedLayer() {
+  if (!map || !map.getSource("stamp-selected")) return;
+  const NPS_STAMPS = Array.isArray(window.NPS_STAMPS) ? window.NPS_STAMPS : [];
+  const features = selectedParks
+    .map((idx) => {
+      // idx could be a park index or a stamp object
+      if (typeof idx === "number") {
+        const p = PARKS_DATA[idx];
+        if (!p) return null;
+        return { type: "Feature", geometry: { type: "Point", coordinates: [p.lon, p.lat] }, properties: {} };
+      }
+      if (idx && typeof idx === "object" && idx.lon != null) {
+        return { type: "Feature", geometry: { type: "Point", coordinates: [idx.lon, idx.lat] }, properties: {} };
+      }
+      return null;
+    })
+    .filter(Boolean);
+  map.getSource("stamp-selected").setData({ type: "FeatureCollection", features });
 }
 
 /**
@@ -2590,6 +2639,252 @@ function setStampLayerVisibility(key, visible) {
 }
 
 /* ===============================
+   TOAST
+================================ */
+let toastTimer = null;
+function showToast(msg, duration = 2200) {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove("is-hidden");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add("is-hidden"), duration);
+}
+
+/* ===============================
+   DETAIL PANEL (right side)
+================================ */
+let detailPanelCurrentParkIndex = null;
+let detailPanelCardMode = "park"; // "park" | "stamp"
+let detailPanelStampData = null;
+
+function openDetailPanel(parkIndex) {
+  const park = PARKS_DATA[parkIndex];
+  if (!park) return;
+
+  detailPanelCurrentParkIndex = parkIndex;
+  detailPanelCardMode = "park";
+  detailPanelStampData = null;
+
+  const nameEl   = document.getElementById("detail-name");
+  const subEl    = document.getElementById("detail-sub");
+  const descEl   = document.getElementById("detail-desc");
+  const feeEl    = document.getElementById("detail-fee");
+  const hoursEl  = document.getElementById("detail-hours");
+  const acresEl  = document.getElementById("detail-acres");
+  const seasonEl = document.getElementById("detail-season");
+  const linkEl   = document.getElementById("detail-link");
+  const addBtn   = document.getElementById("detail-add");
+  const heroPlaceholderNameEl = document.getElementById("detail-hero-name");
+
+  if (nameEl)   nameEl.textContent   = park.name;
+  if (subEl)    subEl.textContent    = [park.state, park.region].filter(Boolean).join(" · ");
+  if (descEl)   descEl.textContent   = park.description ?? "";
+  if (heroPlaceholderNameEl) heroPlaceholderNameEl.textContent = park.name;
+  if (linkEl)   linkEl.href = `https://www.nps.gov/${park.parkCode}/index.htm`;
+  if (acresEl)  acresEl.textContent  = park.acres ? `${Number(park.acres).toLocaleString()} ac` : "—";
+  if (seasonEl) seasonEl.textContent = park.bestSeason ?? "—";
+
+  document.getElementById("detail-designation-row")?.classList.add("is-hidden");
+  document.getElementById("detail-passport-row")?.classList.add("is-hidden");
+
+  const imgEl         = document.getElementById("detail-hero-img");
+  const placeholderEl = document.getElementById("detail-hero-placeholder");
+  if (imgEl) imgEl.classList.add("is-hidden");
+  if (placeholderEl) placeholderEl.style.display = "flex";
+
+  const alreadyAdded = selectedParks.some((p) => p.id === parkIndex);
+  syncDetailAddButton(addBtn, alreadyAdded);
+
+  if (feeEl)   feeEl.textContent   = "…";
+  if (hoursEl) hoursEl.textContent = "…";
+
+  showDetailPanel();
+  switchDetailTab("overview");
+
+  fetchNpsParkDetails(park.parkCode).then(({ fee, hours }) => {
+    if (detailPanelCurrentParkIndex !== parkIndex) return;
+    if (feeEl)   feeEl.textContent   = fee;
+    if (hoursEl) hoursEl.textContent = hours;
+  });
+}
+
+function openDetailPanelStamp(stamp) {
+  detailPanelCurrentParkIndex = null;
+  detailPanelCardMode = "stamp";
+  detailPanelStampData = stamp;
+
+  const nameEl   = document.getElementById("detail-name");
+  const subEl    = document.getElementById("detail-sub");
+  const descEl   = document.getElementById("detail-desc");
+  const feeEl    = document.getElementById("detail-fee");
+  const hoursEl  = document.getElementById("detail-hours");
+  const acresEl  = document.getElementById("detail-acres");
+  const seasonEl = document.getElementById("detail-season");
+  const linkEl   = document.getElementById("detail-link");
+  const addBtn   = document.getElementById("detail-add");
+  const heroPlaceholderNameEl = document.getElementById("detail-hero-name");
+
+  if (nameEl)   nameEl.textContent   = stamp.name;
+  if (subEl)    subEl.textContent    = [stamp.states, stamp.designation].filter(Boolean).join(" · ");
+  if (descEl)   descEl.textContent   = stamp.designation;
+  if (heroPlaceholderNameEl) heroPlaceholderNameEl.textContent = stamp.name;
+  if (linkEl)   linkEl.href = `https://www.nps.gov/${stamp.parkCode}/index.htm`;
+  if (feeEl)    feeEl.textContent   = "—";
+  if (hoursEl)  hoursEl.textContent = "—";
+  if (acresEl)  acresEl.textContent = "—";
+  if (seasonEl) seasonEl.textContent = "—";
+
+  const desigRow    = document.getElementById("detail-designation-row");
+  const passportRow = document.getElementById("detail-passport-row");
+  const desigVal    = document.getElementById("detail-designation-val");
+  const passportVal = document.getElementById("detail-passport-val");
+  if (desigRow)    desigRow.classList.remove("is-hidden");
+  if (passportRow) passportRow.classList.remove("is-hidden");
+  if (desigVal)    desigVal.textContent    = stamp.designation ?? "—";
+  if (passportVal) passportVal.textContent = stamp.passportRegion ?? "—";
+
+  const imgEl         = document.getElementById("detail-hero-img");
+  const placeholderEl = document.getElementById("detail-hero-placeholder");
+  if (imgEl) imgEl.classList.add("is-hidden");
+  if (placeholderEl) placeholderEl.style.display = "flex";
+
+  const stampId      = `stamp:${stamp.parkCode}`;
+  const alreadyAdded = selectedParks.some((p) => p.id === stampId);
+  syncDetailAddButton(addBtn, alreadyAdded);
+
+  showDetailPanel();
+  switchDetailTab("overview");
+}
+
+function showDetailPanel() {
+  const panel = document.getElementById("detail-panel");
+  if (!panel) return;
+  panel.classList.add("is-open");
+  panel.setAttribute("aria-hidden", "false");
+}
+
+function closeDetailPanel() {
+  const panel = document.getElementById("detail-panel");
+  if (!panel) return;
+  panel.classList.remove("is-open");
+  panel.setAttribute("aria-hidden", "true");
+  detailPanelCurrentParkIndex = null;
+  detailPanelCardMode = "park";
+  detailPanelStampData = null;
+}
+
+function syncDetailAddButton(btn, isAdded) {
+  if (!btn) return;
+  if (isAdded) {
+    btn.innerHTML = `<i data-lucide="check" width="14" height="14"></i> Added`;
+    btn.classList.add("is-added");
+  } else {
+    btn.innerHTML = `<i data-lucide="plus" width="14" height="14"></i> Add to trip`;
+    btn.classList.remove("is-added");
+  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function handleDetailAddToTrip() {
+  const addBtn = document.getElementById("detail-add");
+  if (detailPanelCardMode === "stamp" && detailPanelStampData) {
+    const stampId      = `stamp:${detailPanelStampData.parkCode}`;
+    const alreadyAdded = selectedParks.some((p) => p.id === stampId);
+    if (alreadyAdded) {
+      selectedParks = selectedParks.filter((p) => p.id !== stampId);
+      syncDetailAddButton(addBtn, false);
+    } else {
+      selectedParks.push({
+        id: stampId,
+        name: detailPanelStampData.name,
+        coords: [detailPanelStampData.lon, detailPanelStampData.lat],
+        locked: false,
+        source: "stamp"
+      });
+      syncDetailAddButton(addBtn, true);
+    }
+  } else if (detailPanelCurrentParkIndex !== null) {
+    const parkIndex    = detailPanelCurrentParkIndex;
+    const park         = PARKS_DATA[parkIndex];
+    if (!park) return;
+    const alreadyAdded = selectedParks.some((p) => p.id === parkIndex);
+    if (alreadyAdded) {
+      map?.setFeatureState({ source: "parks", id: parkIndex }, { selected: false });
+      selectedParks = selectedParks.filter((p) => p.id !== parkIndex);
+      syncDetailAddButton(addBtn, false);
+    } else {
+      selectedParks.push({
+        id: parkIndex,
+        name: park.name,
+        coords: [park.lon, park.lat],
+        locked: false,
+        source: "park"
+      });
+      map?.setFeatureState({ source: "parks", id: parkIndex }, { selected: true });
+      syncDetailAddButton(addBtn, true);
+    }
+  } else {
+    return;
+  }
+  updateMarkerNumbers();
+  updateStampSelectedLayer();
+  renderStopsList();
+  renderStatus();
+  updateActionAvailability();
+  debounceRouteUpdate(120);
+}
+
+function switchDetailTab(tabName) {
+  document.querySelectorAll(".detail-tab").forEach((btn) => {
+    const isActive = btn.dataset.tab === tabName;
+    btn.classList.toggle("is-active", isActive);
+    btn.setAttribute("aria-selected", String(isActive));
+  });
+  document.querySelectorAll(".detail-tab-pane").forEach((pane) => {
+    pane.classList.toggle("is-active", pane.dataset.pane === tabName);
+  });
+}
+
+function initDetailPanel() {
+  document.getElementById("detail-close")?.addEventListener("click", closeDetailPanel);
+  document.getElementById("detail-add")?.addEventListener("click", handleDetailAddToTrip);
+  document.querySelectorAll(".detail-tab").forEach((btn) => {
+    btn.addEventListener("click", () => switchDetailTab(btn.dataset.tab));
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDetailPanel();
+  });
+}
+
+/* ===============================
+   COLLAPSIBLE SIDEBAR BLOCKS
+================================ */
+function initCollapsibleBlocks() {
+  document.querySelectorAll(".collapsible-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const isExpanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!isExpanded));
+    });
+  });
+}
+
+/* ===============================
+   MOBILE SIDEBAR TOGGLE
+================================ */
+function initMobileSidebar() {
+  const menuBtn = document.getElementById("mobile-menu-btn");
+  const sidebar = document.getElementById("sidebar");
+  if (!menuBtn || !sidebar) return;
+  menuBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("is-open");
+  });
+  document.getElementById("map")?.addEventListener("click", () => {
+    if (window.innerWidth <= 767) sidebar.classList.remove("is-open");
+  });
+}
+
+/* ===============================
    MAP INIT
 ================================ */
 function initMap() {
@@ -2601,7 +2896,7 @@ function initMap() {
 
   map = new mapboxgl.Map({
     container: "map",
-    style: "mapbox://styles/mapbox/dark-v11",
+    style: "mapbox://styles/mapbox/outdoors-v12",
     center: [-98.5, 39.5],
     zoom: 3
   });
@@ -2633,7 +2928,7 @@ function initMap() {
       type: "line",
       source: "route",
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#bb00ff", "line-width": 4, "line-opacity": 0.9 }
+      paint: { "line-color": "#2d6a4f", "line-width": 4, "line-opacity": 0.9 }
     });
 
     map.addLayer({
@@ -2641,7 +2936,7 @@ function initMap() {
       type: "line",
       source: "route-highlight",
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#00ff66", "line-width": 5, "line-opacity": 0.9 }
+      paint: { "line-color": "#52b788", "line-width": 5, "line-opacity": 0.9 }
     });
 
     // Leg drive-time labels at midpoint of each leg
@@ -2659,7 +2954,7 @@ function initMap() {
       },
       paint: {
         "text-color": "#ffffff",
-        "text-halo-color": "#330055",
+        "text-halo-color": "#1b4332",
         "text-halo-width": 2
       }
     });
@@ -2679,10 +2974,11 @@ function initMap() {
         .addTo(map);
     }
 
-    // Click anywhere else on the map → close the card
+    // Click anywhere else on the map → close the card + detail panel
     map.on("click", (e) => {
       if (e.originalEvent._parkCardHandled) return;
       closeParkCard();
+      closeDetailPanel();
     });
 
     // Stamp layer cursors + hover tooltip
@@ -2692,10 +2988,10 @@ function initMap() {
     STAMP_LAYERS.forEach((layerId) => {
       map.on("mouseenter", layerId, (e) => {
         map.getCanvas().style.cursor = "pointer";
+        map.doubleClickZoom.disable(); // prevent zoom on double-click while over a stamp
         const feat = e.features?.[0];
         if (!feat) return;
         const { name, designation, states, passportRegion } = feat.properties;
-        // Create or reuse a tooltip element
         if (!stampTooltip) {
           stampTooltip = document.createElement("div");
           stampTooltip.className = "stamp-tooltip";
@@ -2711,8 +3007,6 @@ function initMap() {
       map.on("mousemove", layerId, (e) => {
         if (!stampTooltip) return;
         const { offsetX, offsetY } = e.originalEvent;
-        const mapEl = document.getElementById("map");
-        const rect = mapEl ? mapEl.getBoundingClientRect() : { left: 0, top: 0 };
         stampTooltip.style.left = `${offsetX + 14}px`;
         stampTooltip.style.top  = `${offsetY - 10}px`;
       });
@@ -2720,16 +3014,68 @@ function initMap() {
       map.on("mouseleave", layerId, () => {
         map.getCanvas().style.cursor = "";
         if (stampTooltip) stampTooltip.style.display = "none";
+        map.doubleClickZoom.enable(); // restore zoom when cursor leaves stamp
       });
 
-      // Click individual stamp point → open stamp card
+      // Single click → open detail panel + add to trip if not already added
+      let clickTimer = null;
       map.on("click", layerId, (e) => {
-        e.originalEvent.stopPropagation(); // prevent map-level close-card handler
+        e.originalEvent.stopPropagation();
+        const feat = e.features?.[0];
+        if (!feat) return;
+        const { parkCode } = feat.properties;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+          const stamp = (window.NPS_STAMPS ?? []).find((s) => s.parkCode === parkCode);
+          if (!stamp) return;
+          openDetailPanelStamp(stamp);
+          openStampCard(stamp); // keep sidebar card in sync
+          const stampId = `stamp:${stamp.parkCode}`;
+          const alreadyAdded = selectedParks.some((p) => p.id === stampId);
+          if (!alreadyAdded) {
+            selectedParks.push({
+              id: stampId,
+              name: stamp.name,
+              coords: [stamp.lon, stamp.lat],
+              locked: false,
+              source: "stamp"
+            });
+            updateMarkerNumbers();
+            updateStampSelectedLayer();
+            renderStopsList();
+            renderStatus();
+            updateActionAvailability();
+            debounceRouteUpdate(120);
+            showToast(`Added ${stamp.name}`);
+            syncDetailAddButton(document.getElementById("detail-add"), true);
+          }
+        }, 250);
+      });
+
+      // Double click → remove from trip
+      map.on("dblclick", layerId, (e) => {
+        e.originalEvent.stopPropagation();
+        clearTimeout(clickTimer);
         const feat = e.features?.[0];
         if (!feat) return;
         const { parkCode } = feat.properties;
         const stamp = (window.NPS_STAMPS ?? []).find((s) => s.parkCode === parkCode);
-        if (stamp) openStampCard(stamp);
+        if (!stamp) return;
+        const stampId  = `stamp:${stamp.parkCode}`;
+        const wasAdded = selectedParks.some((p) => p.id === stampId);
+        if (wasAdded) {
+          selectedParks = selectedParks.filter((p) => p.id !== stampId);
+          updateMarkerNumbers();
+          updateStampSelectedLayer();
+          renderStopsList();
+          renderStatus();
+          updateActionAvailability();
+          debounceRouteUpdate(120);
+          showToast(`Removed ${stamp.name}`);
+          if (detailPanelStampData?.parkCode === stamp.parkCode) {
+            syncDetailAddButton(document.getElementById("detail-add"), false);
+          }
+        }
       });
     });
 
@@ -2971,6 +3317,11 @@ window.addEventListener("DOMContentLoaded", () => {
   // Wizard
   initWizard();
 
+  // Detail panel, collapsibles, mobile sidebar
+  initDetailPanel();
+  initCollapsibleBlocks();
+  initMobileSidebar();
+
   // Park info card buttons
   document.getElementById("park-card-close")?.addEventListener("click", closeParkCard);
 
@@ -2982,9 +3333,9 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Close card on Escape
+  // Close card + detail panel on Escape
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeParkCard();
+    if (e.key === "Escape") { closeParkCard(); closeDetailPanel(); }
   });
 
   // ── Origin system ──────────────────────────────────────────────────────────

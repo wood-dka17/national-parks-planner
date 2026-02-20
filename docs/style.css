@@ -1617,9 +1617,9 @@ body.is-routing #sidebar::after {
   flex-shrink: 0;
 }
 
-.layer-dot--np      { background: #f4801a; }
+.layer-dot--np      { background: #9b59b6; }
 .layer-dot--ss      { background: #00b4d8; }
-.layer-dot--other   { background: #9b59b6; }
+.layer-dot--other   { background: #f4801a; }
 .layer-dot--airport { background: transparent; font-size: 14px; line-height: 1; }
 .layer-dot--camp    { background: transparent; font-size: 14px; line-height: 1; }
 

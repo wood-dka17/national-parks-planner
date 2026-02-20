@@ -2959,12 +2959,12 @@ function initStampLayers() {
 
   // Layer configs: [groupKey, color, radius, opacity]
   const LAYER_CONFIG = [
-    // National Parks — vivid amber-orange (high contrast against green outdoors map)
-    ["national-park",    "#f4801a", 9, 0.95],
+    // National Parks — violet-purple
+    ["national-park",    "#9b59b6", 7, 0.95],
     // National Seashores — vivid cyan/teal
     ["national-seashore","#00b4d8", 7, 0.90],
-    // Other stamp locations — soft violet-purple
-    ["other",            "#9b59b6", 6, 0.85]
+    // Other stamp locations — vivid amber-orange
+    ["other",            "#f4801a", 6, 0.85]
   ];
 
   LAYER_CONFIG.forEach(([key, color, radius, opacity]) => {

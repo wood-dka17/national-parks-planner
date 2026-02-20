@@ -377,7 +377,7 @@
     "name": "Bering Land Bridge National Preserve",
     "parkCode": "bela",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 65.96087902,
     "lon": -164.4086432,
     "states": "AK",
@@ -399,7 +399,7 @@
     "name": "Big Cypress National Preserve",
     "parkCode": "bicy",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 25.97079602,
     "lon": -81.08120629,
     "states": "FL",
@@ -432,7 +432,7 @@
     "name": "Big Thicket National Preserve",
     "parkCode": "bith",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 30.457983431,
     "lon": -94.386742115,
     "states": "TX",
@@ -935,7 +935,7 @@
     "passportRegion": "Mid-Atlantic"
   },
   {
-    "name": "César E. Chávez National Monument",
+    "name": "C\u00e9sar E. Ch\u00e1vez National Monument",
     "parkCode": "cech",
     "designation": "National Monument",
     "layer": "other",
@@ -1081,7 +1081,7 @@
     "name": "City Of Rocks National Reserve",
     "parkCode": "ciro",
     "designation": "National Reserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 42.0699024,
     "lon": -113.7124097,
     "states": "ID",
@@ -2310,7 +2310,7 @@
     "passportRegion": "Rocky Mountain"
   },
   {
-    "name": "Haleakalā National Park",
+    "name": "Haleakal\u0101 National Park",
     "parkCode": "hale",
     "designation": "National Park",
     "layer": "national-park",
@@ -2398,7 +2398,7 @@
     "passportRegion": "Midwest"
   },
   {
-    "name": "Hawaiʻi Volcanoes National Park",
+    "name": "Hawai\u02bbi Volcanoes National Park",
     "parkCode": "havo",
     "designation": "National Park",
     "layer": "national-park",
@@ -2574,7 +2574,7 @@
     "passportRegion": "Midwest"
   },
   {
-    "name": "Iñupiat Heritage Center",
+    "name": "I\u00f1upiat Heritage Center",
     "parkCode": "inup",
     "designation": "Other",
     "layer": "other",
@@ -2717,7 +2717,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Kaloko-Honokōhau National Historical Park",
+    "name": "Kaloko-Honok\u014dhau National Historical Park",
     "parkCode": "kaho",
     "designation": "National Historical Park",
     "layer": "other",
@@ -3006,7 +3006,7 @@
     "name": "Little River Canyon National Preserve",
     "parkCode": "liri",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 34.41461863,
     "lon": -85.61734327,
     "states": "AL",
@@ -3292,7 +3292,7 @@
     "name": "Mojave National Preserve",
     "parkCode": "moja",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 35.12485941,
     "lon": -115.5168258,
     "states": "CA",
@@ -3512,7 +3512,7 @@
     "name": "New Jersey Pinelands National Reserve",
     "parkCode": "pine",
     "designation": "National Reserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 39.9384,
     "lon": -74.625,
     "states": "NJ",
@@ -3600,7 +3600,7 @@
     "name": "Noatak National Preserve",
     "parkCode": "noat",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 68.01027053,
     "lon": -159.831694,
     "states": "AK",
@@ -4015,7 +4015,7 @@
     "passportRegion": "Mid-Atlantic"
   },
   {
-    "name": "Puʻuhonua o Hōnaunau National Historical Park",
+    "name": "Pu\u02bbuhonua o H\u014dnaunau National Historical Park",
     "parkCode": "puho",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4026,7 +4026,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Puʻukoholā Heiau National Historic Site",
+    "name": "Pu\u02bbukohol\u0101 Heiau National Historic Site",
     "parkCode": "puhe",
     "designation": "National Historic Site",
     "layer": "other",
@@ -4499,7 +4499,7 @@
     "passportRegion": "North Atlantic"
   },
   {
-    "name": "Ste. Geneviève National Historical Park",
+    "name": "Ste. Genevi\u00e8ve National Historical Park",
     "parkCode": "stge",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4557,7 +4557,7 @@
     "name": "Tallgrass Prairie National Preserve",
     "parkCode": "tapr",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 38.44023613,
     "lon": -96.5670822,
     "states": "KS",
@@ -4752,7 +4752,7 @@
     "passportRegion": "Western"
   },
   {
-    "name": "Tumacácori National Historical Park",
+    "name": "Tumac\u00e1cori National Historical Park",
     "parkCode": "tuma",
     "designation": "National Historical Park",
     "layer": "other",
@@ -4832,7 +4832,7 @@
     "name": "Valles Caldera National Preserve",
     "parkCode": "vall",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 35.91682872,
     "lon": -106.5195724,
     "states": "NM",
@@ -5195,7 +5195,7 @@
     "name": "Yukon - Charley Rivers National Preserve",
     "parkCode": "yuch",
     "designation": "National Preserve",
-    "layer": "national-park",
+    "layer": "other",
     "lat": 65.0935608,
     "lon": -142.7960021,
     "states": "AK",

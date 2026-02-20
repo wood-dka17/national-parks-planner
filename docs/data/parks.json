@@ -1,0 +1,704 @@
+[
+  {
+    "id": 0,
+    "name": "Acadia National Park",
+    "parkCode": "acad",
+    "state": "ME",
+    "lat": 44.4085418988,
+    "lon": -68.2461366995,
+    "url": "https://www.nps.gov/acad/index.htm",
+    "designation": "National Park",
+    "visitorCenterName": "Hulls Cove Visitor Center"
+  },
+  {
+    "id": 1,
+    "name": "Arches National Park",
+    "parkCode": "arch",
+    "state": "UT",
+    "lat": 38.72261844,
+    "lon": -109.5863666,
+    "url": "https://www.nps.gov/arch/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 2,
+    "name": "Badlands National Park",
+    "parkCode": "badl",
+    "state": "SD",
+    "lat": 43.68584846,
+    "lon": -102.482942,
+    "url": "https://www.nps.gov/badl/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 3,
+    "name": "Bering Land Bridge National Preserve",
+    "parkCode": "bela",
+    "state": "AK",
+    "lat": 65.96087902,
+    "lon": -164.4086432,
+    "url": "https://www.nps.gov/bela/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 4,
+    "name": "Big Bend National Park",
+    "parkCode": "bibe",
+    "state": "TX",
+    "lat": 29.29817767,
+    "lon": -103.2297897,
+    "url": "https://www.nps.gov/bibe/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 5,
+    "name": "Big Cypress National Preserve",
+    "parkCode": "bicy",
+    "state": "FL",
+    "lat": 25.97079602,
+    "lon": -81.08120629,
+    "url": "https://www.nps.gov/bicy/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 6,
+    "name": "Big Thicket National Preserve",
+    "parkCode": "bith",
+    "state": "TX",
+    "lat": 30.457983431,
+    "lon": -94.386742115,
+    "url": "https://www.nps.gov/bith/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 7,
+    "name": "Biscayne National Park",
+    "parkCode": "bisc",
+    "state": "FL",
+    "lat": 25.490587,
+    "lon": -80.21023851,
+    "url": "https://www.nps.gov/bisc/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 8,
+    "name": "Black Canyon Of The Gunnison National Park",
+    "parkCode": "blca",
+    "state": "CO",
+    "lat": 38.57779869,
+    "lon": -107.7242756,
+    "url": "https://www.nps.gov/blca/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 9,
+    "name": "Bryce Canyon National Park",
+    "parkCode": "brca",
+    "state": "UT",
+    "lat": 37.58399144,
+    "lon": -112.1826689,
+    "url": "https://www.nps.gov/brca/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 10,
+    "name": "Canyonlands National Park",
+    "parkCode": "cany",
+    "state": "UT",
+    "lat": 38.24555783,
+    "lon": -109.8801624,
+    "url": "https://www.nps.gov/cany/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 11,
+    "name": "Capitol Reef National Park",
+    "parkCode": "care",
+    "state": "UT",
+    "lat": 38.2821653131,
+    "lon": -111.247048378,
+    "url": "https://www.nps.gov/care/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 12,
+    "name": "Carlsbad Caverns National Park",
+    "parkCode": "cave",
+    "state": "NM",
+    "lat": 32.14089463,
+    "lon": -104.5529688,
+    "url": "https://www.nps.gov/cave/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 13,
+    "name": "Channel Islands National Park",
+    "parkCode": "chis",
+    "state": "CA",
+    "lat": 33.98680093,
+    "lon": -119.9112735,
+    "url": "https://www.nps.gov/chis/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 14,
+    "name": "City Of Rocks National Reserve",
+    "parkCode": "ciro",
+    "state": "ID",
+    "lat": 42.0699024,
+    "lon": -113.7124097,
+    "url": "https://www.nps.gov/ciro/index.htm",
+    "designation": "National Reserve"
+  },
+  {
+    "id": 15,
+    "name": "Congaree National Park",
+    "parkCode": "cong",
+    "state": "SC",
+    "lat": 33.79187523,
+    "lon": -80.74867805,
+    "url": "https://www.nps.gov/cong/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 16,
+    "name": "Crater Lake National Park",
+    "parkCode": "crla",
+    "state": "OR",
+    "lat": 42.94065854,
+    "lon": -122.1338414,
+    "url": "https://www.nps.gov/crla/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 17,
+    "name": "Cuyahoga Valley National Park",
+    "parkCode": "cuva",
+    "state": "OH",
+    "lat": 41.26093905,
+    "lon": -81.57116722,
+    "url": "https://www.nps.gov/cuva/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 18,
+    "name": "Death Valley National Park",
+    "parkCode": "deva",
+    "state": "CA,NV",
+    "lat": 36.48753731,
+    "lon": -117.134395,
+    "url": "https://www.nps.gov/deva/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 19,
+    "name": "Denali National Park & Preserve",
+    "parkCode": "dena",
+    "state": "AK",
+    "lat": 63.29777484,
+    "lon": -151.0526568,
+    "url": "https://www.nps.gov/dena/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 20,
+    "name": "Dry Tortugas National Park",
+    "parkCode": "drto",
+    "state": "FL",
+    "lat": 24.628741,
+    "lon": -82.87319,
+    "url": "https://www.nps.gov/drto/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 21,
+    "name": "Everglades National Park",
+    "parkCode": "ever",
+    "state": "FL",
+    "lat": 25.37294225,
+    "lon": -80.88200301,
+    "url": "https://www.nps.gov/ever/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 22,
+    "name": "Gates Of The Arctic National Park & Preserve",
+    "parkCode": "gaar",
+    "state": "AK",
+    "lat": 67.75961636,
+    "lon": -153.2917758,
+    "url": "https://www.nps.gov/gaar/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 23,
+    "name": "Gateway Arch National Park",
+    "parkCode": "jeff",
+    "state": "MO",
+    "lat": 38.6258069,
+    "lon": -90.1892508,
+    "url": "https://www.nps.gov/jeff/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 24,
+    "name": "Glacier Bay National Park & Preserve",
+    "parkCode": "glba",
+    "state": "AK",
+    "lat": 58.80086718,
+    "lon": -136.8407579,
+    "url": "https://www.nps.gov/glba/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 25,
+    "name": "Glacier National Park",
+    "parkCode": "glac",
+    "state": "MT",
+    "lat": 48.68414678,
+    "lon": -113.8009306,
+    "url": "https://www.nps.gov/glac/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 26,
+    "name": "Grand Canyon National Park",
+    "parkCode": "grca",
+    "state": "AZ",
+    "lat": 36.0001165336,
+    "lon": -112.121516363,
+    "url": "https://www.nps.gov/grca/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 27,
+    "name": "Grand Teton National Park",
+    "parkCode": "grte",
+    "state": "WY",
+    "lat": 43.81853565,
+    "lon": -110.7054666,
+    "url": "https://www.nps.gov/grte/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 28,
+    "name": "Great Basin National Park",
+    "parkCode": "grba",
+    "state": "NV",
+    "lat": 38.94617378,
+    "lon": -114.2579782,
+    "url": "https://www.nps.gov/grba/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 29,
+    "name": "Great Sand Dunes National Park & Preserve",
+    "parkCode": "grsa",
+    "state": "CO",
+    "lat": 37.79256812,
+    "lon": -105.5919572,
+    "url": "https://www.nps.gov/grsa/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 30,
+    "name": "Great Smoky Mountains National Park",
+    "parkCode": "grsm",
+    "state": "NC,TN",
+    "lat": 35.60116374,
+    "lon": -83.50818326,
+    "url": "https://www.nps.gov/grsm/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 31,
+    "name": "Guadalupe Mountains National Park",
+    "parkCode": "gumo",
+    "state": "TX",
+    "lat": 31.92304462,
+    "lon": -104.885527,
+    "url": "https://www.nps.gov/gumo/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 32,
+    "name": "Haleakalā National Park",
+    "parkCode": "hale",
+    "state": "HI",
+    "lat": 20.70693015,
+    "lon": -156.1591775,
+    "url": "https://www.nps.gov/hale/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 33,
+    "name": "Hawaiʻi Volcanoes National Park",
+    "parkCode": "havo",
+    "state": "HI",
+    "lat": 19.3355036,
+    "lon": -155.4700257,
+    "url": "https://www.nps.gov/havo/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 34,
+    "name": "Hot Springs National Park",
+    "parkCode": "hosp",
+    "state": "AR",
+    "lat": 34.52414366,
+    "lon": -93.06332936,
+    "url": "https://www.nps.gov/hosp/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 35,
+    "name": "Indiana Dunes National Park",
+    "parkCode": "indu",
+    "state": "IN",
+    "lat": 41.63765525,
+    "lon": -87.09647445,
+    "url": "https://www.nps.gov/indu/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 36,
+    "name": "Isle Royale National Park",
+    "parkCode": "isro",
+    "state": "MI",
+    "lat": 48.01145819,
+    "lon": -88.82780657,
+    "url": "https://www.nps.gov/isro/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 37,
+    "name": "Joshua Tree National Park",
+    "parkCode": "jotr",
+    "state": "CA",
+    "lat": 33.91418525,
+    "lon": -115.8398125,
+    "url": "https://www.nps.gov/jotr/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 38,
+    "name": "Katmai National Park & Preserve",
+    "parkCode": "katm",
+    "state": "AK",
+    "lat": 58.62235668,
+    "lon": -155.0126574,
+    "url": "https://www.nps.gov/katm/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 39,
+    "name": "Kenai Fjords National Park",
+    "parkCode": "kefj",
+    "state": "AK",
+    "lat": 59.81804414,
+    "lon": -150.106502,
+    "url": "https://www.nps.gov/kefj/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 40,
+    "name": "Kobuk Valley National Park",
+    "parkCode": "kova",
+    "state": "AK",
+    "lat": 67.35631336,
+    "lon": -159.2002293,
+    "url": "https://www.nps.gov/kova/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 41,
+    "name": "Lake Clark National Park & Preserve",
+    "parkCode": "lacl",
+    "state": "AK",
+    "lat": 60.57405857,
+    "lon": -153.55535,
+    "url": "https://www.nps.gov/lacl/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 42,
+    "name": "Lassen Volcanic National Park",
+    "parkCode": "lavo",
+    "state": "CA",
+    "lat": 40.49354575,
+    "lon": -121.4075993,
+    "url": "https://www.nps.gov/lavo/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 43,
+    "name": "Little River Canyon National Preserve",
+    "parkCode": "liri",
+    "state": "AL",
+    "lat": 34.41461863,
+    "lon": -85.61734327,
+    "url": "https://www.nps.gov/liri/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 44,
+    "name": "Mammoth Cave National Park",
+    "parkCode": "maca",
+    "state": "KY",
+    "lat": 37.19760458,
+    "lon": -86.13090198,
+    "url": "https://www.nps.gov/maca/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 45,
+    "name": "Mesa Verde National Park",
+    "parkCode": "meve",
+    "state": "CO",
+    "lat": 37.23908345,
+    "lon": -108.4624032,
+    "url": "https://www.nps.gov/meve/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 46,
+    "name": "Mojave National Preserve",
+    "parkCode": "moja",
+    "state": "CA",
+    "lat": 35.12485941,
+    "lon": -115.5168258,
+    "url": "https://www.nps.gov/moja/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 47,
+    "name": "Mount Rainier National Park",
+    "parkCode": "mora",
+    "state": "WA",
+    "lat": 46.86075416,
+    "lon": -121.7043885,
+    "url": "https://www.nps.gov/mora/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 48,
+    "name": "New Jersey Pinelands National Reserve",
+    "parkCode": "pine",
+    "state": "NJ",
+    "lat": 39.9384,
+    "lon": -74.625,
+    "url": "https://www.nps.gov/pine/index.htm",
+    "designation": "National Reserve"
+  },
+  {
+    "id": 49,
+    "name": "New River Gorge National Park & Preserve",
+    "parkCode": "neri",
+    "state": "WV",
+    "lat": 37.86878554,
+    "lon": -80.99956002,
+    "url": "https://www.nps.gov/neri/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 50,
+    "name": "Noatak National Preserve",
+    "parkCode": "noat",
+    "state": "AK",
+    "lat": 66.892539,
+    "lon": -162.605111,
+    "url": "https://www.nps.gov/noat/index.htm",
+    "designation": "National Preserve",
+    "visitorCenterName": "Northwest Arctic Heritage Center"
+  },
+  {
+    "id": 51,
+    "name": "North Cascades National Park",
+    "parkCode": "noca",
+    "state": "WA",
+    "lat": 48.71171756,
+    "lon": -121.2069423,
+    "url": "https://www.nps.gov/noca/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 52,
+    "name": "Olympic National Park",
+    "parkCode": "olym",
+    "state": "WA",
+    "lat": 47.80392754,
+    "lon": -123.6663848,
+    "url": "https://www.nps.gov/olym/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 53,
+    "name": "Petrified Forest National Park",
+    "parkCode": "pefo",
+    "state": "AZ",
+    "lat": 34.98387664,
+    "lon": -109.7877678,
+    "url": "https://www.nps.gov/pefo/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 54,
+    "name": "Pinnacles National Park",
+    "parkCode": "pinn",
+    "state": "CA",
+    "lat": 36.49029208,
+    "lon": -121.1813607,
+    "url": "https://www.nps.gov/pinn/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 55,
+    "name": "Rocky Mountain National Park",
+    "parkCode": "romo",
+    "state": "CO",
+    "lat": 40.3556924,
+    "lon": -105.6972879,
+    "url": "https://www.nps.gov/romo/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 56,
+    "name": "Saguaro National Park",
+    "parkCode": "sagu",
+    "state": "AZ",
+    "lat": 32.20909636,
+    "lon": -110.7574974,
+    "url": "https://www.nps.gov/sagu/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 57,
+    "name": "Shenandoah National Park",
+    "parkCode": "shen",
+    "state": "VA",
+    "lat": 38.49236644,
+    "lon": -78.46907715,
+    "url": "https://www.nps.gov/shen/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 58,
+    "name": "Tallgrass Prairie National Preserve",
+    "parkCode": "tapr",
+    "state": "KS",
+    "lat": 38.44023613,
+    "lon": -96.5670822,
+    "url": "https://www.nps.gov/tapr/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 59,
+    "name": "Theodore Roosevelt National Park",
+    "parkCode": "thro",
+    "state": "ND",
+    "lat": 47.17777274,
+    "lon": -103.4300083,
+    "url": "https://www.nps.gov/thro/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 60,
+    "name": "Valles Caldera National Preserve",
+    "parkCode": "vall",
+    "state": "NM",
+    "lat": 35.91682872,
+    "lon": -106.5195724,
+    "url": "https://www.nps.gov/vall/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 61,
+    "name": "Virgin Islands National Park",
+    "parkCode": "viis",
+    "state": "VI",
+    "lat": 18.34279656,
+    "lon": -64.74194451,
+    "url": "https://www.nps.gov/viis/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 62,
+    "name": "Voyageurs National Park",
+    "parkCode": "voya",
+    "state": "MN",
+    "lat": 48.48370609,
+    "lon": -92.8382913,
+    "url": "https://www.nps.gov/voya/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 63,
+    "name": "White Sands National Park",
+    "parkCode": "whsa",
+    "state": "NM",
+    "lat": 32.77907858,
+    "lon": -106.3333461,
+    "url": "https://www.nps.gov/whsa/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 64,
+    "name": "Wind Cave National Park",
+    "parkCode": "wica",
+    "state": "SD",
+    "lat": 43.58012365,
+    "lon": -103.4394709,
+    "url": "https://www.nps.gov/wica/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 65,
+    "name": "Wrangell - St Elias National Park & Preserve",
+    "parkCode": "wrst",
+    "state": "AK",
+    "lat": 61.4182147,
+    "lon": -142.6028439,
+    "url": "https://www.nps.gov/wrst/index.htm",
+    "designation": "National Park & Preserve"
+  },
+  {
+    "id": 66,
+    "name": "Yellowstone National Park",
+    "parkCode": "yell",
+    "state": "ID,MT,WY",
+    "lat": 44.59824417,
+    "lon": -110.5471695,
+    "url": "https://www.nps.gov/yell/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 67,
+    "name": "Yosemite National Park",
+    "parkCode": "yose",
+    "state": "CA",
+    "lat": 37.84883288,
+    "lon": -119.5571873,
+    "url": "https://www.nps.gov/yose/index.htm",
+    "designation": "National Park"
+  },
+  {
+    "id": 68,
+    "name": "Yukon - Charley Rivers National Preserve",
+    "parkCode": "yuch",
+    "state": "AK",
+    "lat": 65.0935608,
+    "lon": -142.7960021,
+    "url": "https://www.nps.gov/yuch/index.htm",
+    "designation": "National Preserve"
+  },
+  {
+    "id": 69,
+    "name": "Zion National Park",
+    "parkCode": "zion",
+    "state": "UT",
+    "lat": 37.29839254,
+    "lon": -113.0265138,
+    "url": "https://www.nps.gov/zion/index.htm",
+    "designation": "National Park"
+  }
+]

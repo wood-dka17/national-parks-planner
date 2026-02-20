@@ -779,11 +779,125 @@ select:focus {
   letter-spacing: 0.02em;
 }
 
-.daycard__body { display: grid; gap: 4px; }
+.daycard__body { display: grid; gap: 0; }
 
 .dayleg {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+/* ── Day-plan timeline ───────────────────────────────────── */
+/* Vertical rail runs through the left edge of each row */
+.daycard__timeline {
+  position: relative;
+  padding-left: 20px;
+}
+.daycard__timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+/* Location nodes (start & arrive) */
+.dayleg-node {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0 5px 4px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+/* Circle dot on the rail */
+.dayleg-node::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  z-index: 1;
+}
+.dayleg-node--start::before { background: var(--accent); }
+
+.dayleg-node__time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 38px;
+  flex-shrink: 0;
+}
+.dayleg-node__name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Drive segment */
+.dayleg-drive {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0 3px 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dayleg-drive__bar {
+  display: block;
+  width: 2px;
+  min-height: 18px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--text-muted) 0px,
+    var(--text-muted) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  margin-left: -15px;         /* align with rail */
+  margin-right: 7px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  opacity: 0.45;
+}
+.dayleg-drive__label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Visit / explore segment */
+.dayleg-visit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0 3px 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dayleg-visit__bar {
+  display: block;
+  width: 2px;
+  min-height: 14px;
+  background: var(--accent);
+  margin-left: -15px;
+  margin-right: 7px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  opacity: 0.35;
+}
+.dayleg-visit__label {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
 }
 
 /* ---------- Day plan notice banner ---------- */

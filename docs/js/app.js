@@ -1047,6 +1047,9 @@ function renderStopsList() {
       }
     });
   });
+
+  // Update airport suggestion whenever stops change
+  renderAirportSuggestion();
 }
 
 /* ===============================
@@ -1510,6 +1513,173 @@ function stampFeatureCollection(layerKey) {
   };
 }
 
+/* ============================================================
+   AIRPORT LAYER + SUGGESTION
+============================================================ */
+
+/**
+ * Haversine distance in miles between two [lon, lat] points.
+ */
+function haversineMiles([lon1, lat1], [lon2, lat2]) {
+  const R = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/**
+ * Return the closest airport to a given [lon, lat] coordinate.
+ */
+function nearestAirport(coords) {
+  const airports = Array.isArray(window.AIRPORTS) ? window.AIRPORTS : [];
+  if (!airports.length) return null;
+  let best = null, bestDist = Infinity;
+  airports.forEach((ap) => {
+    const d = haversineMiles(coords, [ap.lon, ap.lat]);
+    if (d < bestDist) { bestDist = d; best = { ...ap, distMi: Math.round(d) }; }
+  });
+  return best;
+}
+
+/**
+ * Add or remove the airport GeoJSON source + symbol layer.
+ * Called once inside map.on("load").
+ */
+function initAirportLayer() {
+  if (!map) return;
+  const airports = Array.isArray(window.AIRPORTS) ? window.AIRPORTS : [];
+
+  // Update count badge
+  const countEl = document.getElementById("count-airports");
+  if (countEl) countEl.textContent = `(${airports.length})`;
+
+  // Build GeoJSON
+  const geojson = {
+    type: "FeatureCollection",
+    features: airports.map((ap) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [ap.lon, ap.lat] },
+      properties: { iata: ap.iata, name: ap.name, city: ap.city, state: ap.state }
+    }))
+  };
+
+  map.addSource("airports", { type: "geojson", data: geojson });
+
+  // Circle layer (always added, visibility toggled)
+  map.addLayer({
+    id: "airports-layer",
+    type: "circle",
+    source: "airports",
+    layout: { visibility: "none" },
+    paint: {
+      "circle-radius": 6,
+      "circle-color": "#00bfff",
+      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": 1.5,
+      "circle-opacity": 0.85
+    }
+  });
+
+  // Symbol layer for IATA code label
+  map.addLayer({
+    id: "airports-labels",
+    type: "symbol",
+    source: "airports",
+    layout: {
+      visibility: "none",
+      "text-field": ["get", "iata"],
+      "text-size": 9,
+      "text-offset": [0, 1.4],
+      "text-anchor": "top",
+      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"]
+    },
+    paint: {
+      "text-color": "#00bfff",
+      "text-halo-color": "#000",
+      "text-halo-width": 1
+    }
+  });
+
+  // Hover cursor
+  map.on("mouseenter", "airports-layer", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "airports-layer", () => { map.getCanvas().style.cursor = ""; });
+
+  // Click → popup
+  map.on("click", "airports-layer", (e) => {
+    e.originalEvent.stopPropagation();
+    const { iata, name, city, state } = e.features[0].properties;
+    new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
+      .setLngLat(e.features[0].geometry.coordinates)
+      .setHTML(`
+        <div style="font-size:13px;line-height:1.5">
+          <strong style="font-size:15px">${iata}</strong><br>
+          ${name}<br>
+          <span style="color:#aaa">${city}, ${state}</span>
+        </div>`)
+      .addTo(map);
+  });
+
+  // Toggle wiring
+  document.getElementById("layer-airports")?.addEventListener("change", (e) => {
+    const vis = e.target.checked ? "visible" : "none";
+    map.setLayoutProperty("airports-layer",  "visibility", vis);
+    map.setLayoutProperty("airports-labels", "visibility", vis);
+  });
+}
+
+/**
+ * Compute and render the "Suggested Airports" box.
+ * Shown whenever 2+ stops are selected; hidden otherwise.
+ */
+function renderAirportSuggestion() {
+  const section = document.getElementById("airport-suggestion");
+  const content = document.getElementById("airport-suggestion-content");
+  if (!section || !content) return;
+
+  if (selectedParks.length < 2) {
+    section.classList.add("is-hidden");
+    return;
+  }
+
+  const first = selectedParks[0];
+  const last  = selectedParks[selectedParks.length - 1];
+
+  const flyIn  = nearestAirport(first.coords);
+  const flyOut = nearestAirport(last.coords);
+
+  if (!flyIn || !flyOut) { section.classList.add("is-hidden"); return; }
+
+  const sameAirport = flyIn.iata === flyOut.iata;
+
+  content.innerHTML = `
+    <div class="airport-row airport-row--in">
+      <span class="airport-badge">✈ Fly in</span>
+      <div class="airport-info">
+        <strong>${flyIn.iata}</strong> — ${flyIn.city}, ${flyIn.state}
+        <div class="airport-detail">${flyIn.name}</div>
+        <div class="airport-dist">${flyIn.distMi} mi from ${first.name}</div>
+      </div>
+    </div>
+    ${sameAirport ? `
+    <div class="airport-same-note">Same airport for fly-out — consider reordering stops for a one-way trip.</div>
+    ` : `
+    <div class="airport-row airport-row--out">
+      <span class="airport-badge airport-badge--out">✈ Fly out</span>
+      <div class="airport-info">
+        <strong>${flyOut.iata}</strong> — ${flyOut.city}, ${flyOut.state}
+        <div class="airport-detail">${flyOut.name}</div>
+        <div class="airport-dist">${flyOut.distMi} mi from ${last.name}</div>
+      </div>
+    </div>
+    `}
+  `;
+
+  section.classList.remove("is-hidden");
+}
+
 /**
  * Initialise all three stamp GeoJSON sources and circle layers.
  * Called once inside map.on("load") after the parks layer is ready.
@@ -1686,6 +1856,7 @@ function initMap() {
 
     ensureMarkers();
     initStampLayers();
+    initAirportLayer();
 
     // If geolocation already resolved before the map loaded, materialize the marker now
     if (originPoint && !originMarker) {

@@ -958,6 +958,14 @@ body.is-routing #sidebar::after{
 .layer-dot--np   { background: #bb00ff; }
 .layer-dot--ss   { background: #00d4c8; }
 .layer-dot--other{ background: #ffb300; }
+.layer-dot--airport {
+  background: transparent;
+  color: #00bfff;
+  font-size: 13px;
+  line-height: 1;
+  width: auto;
+  border-radius: 0;
+}
 
 /* Count chip inline with label */
 .layer-count{
@@ -1111,5 +1119,71 @@ body.is-routing #sidebar::after{
 
 .origin-result:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Airport suggestion box ──────────────────────────────── */
+.airport-suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.airport-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 191, 255, 0.07);
+  border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.airport-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00bfff;
+  background: rgba(0, 191, 255, 0.15);
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.airport-badge--out {
+  color: #bb00ff;
+  background: rgba(187, 0, 255, 0.15);
+}
+
+.airport-row--out {
+  background: rgba(187, 0, 255, 0.07);
+  border-color: rgba(187, 0, 255, 0.2);
+}
+
+.airport-info {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.airport-info strong {
+  font-size: 15px;
+  color: #fff;
+}
+
+.airport-detail {
+  font-size: 11px;
+  color: #888;
+}
+
+.airport-dist {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.airport-same-note {
+  font-size: 12px;
+  color: #aaa;
+  font-style: italic;
+  padding: 6px 0;
 }
 

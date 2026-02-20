@@ -146,6 +146,21 @@
             </div>
           </div>
 
+          <!-- Airport Layer Toggle -->
+          <div class="section">
+            <h2>Airports</h2>
+            <p class="layer-desc">Show major commercial airports on the map.</p>
+            <div class="controls layer-toggles">
+              <label class="toggle layer-toggle" for="layer-airports">
+                <span class="layer-toggle__label">
+                  <span class="layer-dot layer-dot--airport">✈</span>
+                  Major Airports <span class="layer-count" id="count-airports"></span>
+                </span>
+                <input id="layer-airports" type="checkbox" />
+              </label>
+            </div>
+          </div>
+
           <!-- Trip Origin -->
           <div class="section" id="origin-section">
             <h2>Trip Origin</h2>
@@ -172,6 +187,13 @@
               <div class="subtle">Click × to remove a stop</div>
             </div>
             <div id="stops-list" class="stops-list" aria-label="Selected stops list"></div>
+          </div>
+
+          <!-- Suggested Airports -->
+          <div class="section is-hidden" id="airport-suggestion">
+            <h2>✈ Suggested Airports</h2>
+            <p class="layer-desc">Based on your selected stops.</p>
+            <div id="airport-suggestion-content" class="airport-suggestion-content"></div>
           </div>
 
           <div class="section">
@@ -369,6 +391,7 @@
     <!-- Bundled fallback data (used when docs/data/ JSON not yet built) -->
     <script src="./js/parks.js"></script>
     <script src="./js/nps-stamps.js"></script>
+    <script src="./js/airports.js"></script>
 
     <!-- App (nps.js runtime NPS fetch removed — data comes from docs/data/*.json) -->
     <script src="./js/app.js"></script>

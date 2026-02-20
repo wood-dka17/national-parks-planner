@@ -356,8 +356,11 @@ function attachLegGeometriesFromRoute(fullGeometry, orderedStops, roundTripOn) {
 async function computeStopOrder() {
   const beforeOrder = selectedParks.map((s) => s.name);
 
-  // If no optimize or not enough points, return as-is
-  if (!optimizeToggle?.checked || selectedParks.length < 3) {
+  // Need at least 2 unlocked stops to optimize.
+  // When an origin is set the effective trip has origin + N stops, so 2 stops
+  // is enough to be worth optimizing; without an origin we need ≥3 stops.
+  const minForOptimize = originPoint ? 2 : 3;
+  if (!optimizeToggle?.checked || selectedParks.length < minForOptimize) {
     return { orderedStops: [...selectedParks], optimized: false, beforeOrder };
   }
 
@@ -371,23 +374,36 @@ async function computeStopOrder() {
     return { orderedStops: [...selectedParks], optimized: false, beforeOrder };
   }
 
-  // Start at first stop if unlocked; else first unlocked
-  let start = selectedParks[0];
-  if (start.locked) {
-    const firstUnlocked = selectedParks.find((p) => !p.locked);
-    if (firstUnlocked) start = firstUnlocked;
-  }
-
   const remaining = new Set(unlocked.map((p) => p.id));
   const byId = new Map(unlocked.map((p) => [p.id, p]));
 
-  const route = [start];
-  remaining.delete(start.id);
+  // Determine the greedy starting position for the nearest-neighbour sweep:
+  // • If an origin is set, seed from the origin coordinates so the first stop
+  //   picked is the one nearest the user's actual departure point.
+  // • Otherwise fall back to the first unlocked stop as before.
+  let seedCoords;
+  let route = [];
 
+  if (originPoint) {
+    // All unlocked stops are candidates for the first pick — none pre-selected.
+    seedCoords = originPoint.lngLat;
+  } else {
+    // No origin: pin selectedParks[0] (or first unlocked) as the starting stop.
+    let start = selectedParks[0];
+    if (start.locked) {
+      start = selectedParks.find((p) => !p.locked) ?? start;
+    }
+    route.push(start);
+    remaining.delete(start.id);
+    seedCoords = start.coords;
+  }
+
+  // Greedy nearest-neighbour loop
   while (remaining.size) {
-    const last = route[route.length - 1];
-    const prevBearing = route.length >= 2
-      ? bearingBetween(route[route.length - 2].coords, last.coords)
+    const prevCoords = route.length >= 2 ? route[route.length - 2].coords : null;
+    const lastCoords = route.length >= 1 ? route[route.length - 1].coords : seedCoords;
+    const prevBearing = (route.length >= 2 && prevCoords)
+      ? bearingBetween(prevCoords, lastCoords)
       : null;
 
     let best = null;
@@ -395,12 +411,12 @@ async function computeStopOrder() {
 
     for (const id of remaining) {
       const cand = byId.get(id);
-      let score = milesBetween(last.coords, cand.coords);
+      let score = milesBetween(lastCoords, cand.coords);
 
       // No-backtracking: add a penalty proportional to how much this leg
       // reverses the current direction of travel (max 2× the leg distance).
       if (tripRules.noBacktracking && prevBearing !== null && score > 0) {
-        const legBearing = bearingBetween(last.coords, cand.coords);
+        const legBearing = bearingBetween(lastCoords, cand.coords);
         const diff = bearingDiff(prevBearing, legBearing); // 0–180
         const penalty = (diff / 180) * score; // up to 100% of distance
         score += penalty;

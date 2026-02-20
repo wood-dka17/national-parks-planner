@@ -1813,7 +1813,9 @@ window.addEventListener("DOMContentLoaded", () => {
   statusTripEl = document.getElementById("status-trip");
   statusCountEl = document.getElementById("status-count");
 
-  if (!ensureBasics()) return;
+  // Note: ensureBasics() is NOT called here — PARKS_DATA is populated
+  // asynchronously by loadStaticData() below. ensureBasics() is called
+  // inside initMap() after data has loaded.
 
   // Load rule inputs (original + new)
   if (startTimeEl) { tripRules.startTimeHHMM = startTimeEl.value || "08:00"; tripRules.wakeHHMM = startTimeEl.value || "08:00"; }

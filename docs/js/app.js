@@ -3045,6 +3045,93 @@ window.addEventListener("DOMContentLoaded", () => {
     if (selectedParks.length >= 1) debounceRouteUpdate(120);
   });
 
+  // ── Park search ────────────────────────────────────────────────────────────
+  const parkSearchEl    = document.getElementById("park-search");
+  const searchResultsEl = document.getElementById("search-results");
+  let   searchDebounceTimer = null;
+
+  function getSearchCandidates() {
+    const candidates = [];
+    for (const p of PARKS_DATA) {
+      candidates.push({ name: p.name, meta: p.state, source: "park", id: p.id });
+    }
+    for (const s of NPS_STAMPS) {
+      // Skip units that are already represented in PARKS_DATA
+      if (PARKS_DATA.some((p) => p.parkCode === s.parkCode)) continue;
+      candidates.push({ name: s.name, meta: s.states, source: "stamp", parkCode: s.parkCode });
+    }
+    return candidates;
+  }
+
+  function renderSearchResults(query) {
+    if (!searchResultsEl) return;
+    if (!query.trim()) {
+      searchResultsEl.classList.add("is-hidden");
+      parkSearchEl?.setAttribute("aria-expanded", "false");
+      return;
+    }
+    const q       = query.toLowerCase();
+    const matches = getSearchCandidates()
+      .filter((c) => c.name.toLowerCase().includes(q) || (c.meta ?? "").toLowerCase().includes(q))
+      .slice(0, 12);
+
+    if (!matches.length) {
+      searchResultsEl.classList.add("is-hidden");
+      parkSearchEl?.setAttribute("aria-expanded", "false");
+      return;
+    }
+
+    searchResultsEl.innerHTML = matches.map((c, i) =>
+      `<div class="search-result" role="option" data-idx="${i}" aria-selected="false">` +
+      `<span class="search-result__name">${c.name}</span>` +
+      `<span class="search-result__meta">${c.meta ?? ""}</span>` +
+      `</div>`
+    ).join("");
+    searchResultsEl._matches = matches;
+    searchResultsEl.classList.remove("is-hidden");
+    parkSearchEl?.setAttribute("aria-expanded", "true");
+  }
+
+  parkSearchEl?.addEventListener("input", () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => renderSearchResults(parkSearchEl.value), 150);
+  });
+
+  parkSearchEl?.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      searchResultsEl?.classList.add("is-hidden");
+      parkSearchEl.setAttribute("aria-expanded", "false");
+      parkSearchEl.value = "";
+    }
+  });
+
+  searchResultsEl?.addEventListener("click", (e) => {
+    const row = e.target.closest(".search-result");
+    if (!row) return;
+    const idx   = Number(row.dataset.idx);
+    const match = searchResultsEl._matches?.[idx];
+    if (!match) return;
+
+    if (match.source === "park") {
+      openParkCard(match.id);
+    } else {
+      const stamp = NPS_STAMPS.find((s) => s.parkCode === match.parkCode);
+      if (stamp) openStampCard(stamp);
+    }
+
+    searchResultsEl.classList.add("is-hidden");
+    parkSearchEl.setAttribute("aria-expanded", "false");
+    parkSearchEl.value = "";
+  });
+
+  // Close dropdown when clicking outside the search area
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-wrap")) {
+      searchResultsEl?.classList.add("is-hidden");
+      parkSearchEl?.setAttribute("aria-expanded", "false");
+    }
+  }, true);
+
   // ── Map boot ───────────────────────────────────────────────────────────────
   // Load static JSON data (parks.json + units.json from docs/data/), then boot.
   // Falls back to bundled parks.js / nps-stamps.js if JSON files aren't built yet.

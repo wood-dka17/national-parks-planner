@@ -103,6 +103,99 @@ a{ color: inherit; }
   font-size: 13px;
 }
 
+/* ---------- Park search box ---------- */
+.search-wrap {
+  position: relative;
+  margin-top: 10px;
+}
+
+#park-search {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--text, #f0f0f0);
+  padding: 7px 10px 7px 32px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#park-search::placeholder {
+  color: var(--muted, rgba(234,234,234,0.55));
+}
+
+#park-search:focus {
+  outline: none;
+  border-color: var(--accent, #1e90ff);
+}
+
+/* Suppress native Safari/Chrome search clear × and magnifier */
+#park-search::-webkit-search-cancel-button,
+#park-search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Magnifier icon via pseudo-element on the wrapper */
+.search-wrap::before {
+  content: "🔍";
+  position: absolute;
+  left: 9px;
+  top: 16px;        /* fixed — half of 32px input height, stays put when dropdown opens */
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+/* Dropdown results panel */
+.search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.search-result {
+  padding: 9px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.search-result:last-child { border-bottom: none; }
+
+.search-result:hover,
+.search-result[aria-selected="true"] {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-result__name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.search-result__meta {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 /* ---------- Mode tabs (Planner / Day-by-Day) ---------- */
 .mode-tabs{
   display: inline-flex;

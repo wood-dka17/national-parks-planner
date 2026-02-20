@@ -42,10 +42,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Inject Mapbox runtime token into config.js
-        run: |
-          sed -i 's|mapboxToken: ""|mapboxToken: "${{ secrets.MAPBOX_TOKEN_PUBLIC }}"|' docs/js/config.js
-
       - name: Run NPS data build script
         env:
           NPS_API_KEY: ${{ secrets.NPS_API_KEY }}
@@ -61,7 +57,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/ docs/js/config.js
+          git add docs/data/
           # Only commit if there are actual changes
-          git diff --cached --quiet || git commit -m "chore: refresh NPS data + inject token [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: refresh NPS data [skip ci]"
           git push

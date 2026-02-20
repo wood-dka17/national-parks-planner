@@ -15,10 +15,10 @@
  * See SECURITY.md for the full key-handling policy.
  */
 window.APP_CONFIG = {
-  // Token is injected at deploy time via GitHub Actions (MAPBOX_TOKEN_PUBLIC secret).
-  // For local dev, create docs/js/config.local.js (gitignored) and set the token there.
+  // This is a PUBLIC token (pk.) intentionally included here.
+  // It is URL-restricted in the Mapbox dashboard to only work on this site.
   // See SECURITY.md for the full key-handling policy.
-  mapboxToken: "",
+  mapboxToken: "pk.eyJ1Ijoid29vZC1ka2ExNyIsImEiOiJjbWpkcHY1c3AwOHloM2twcnFzZG5mN3R5In0.FzN2MnoK3o7K4fZweWOSlw",
 
   /**
    * Base path for static data assets.

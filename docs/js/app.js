@@ -2297,16 +2297,31 @@ function initAirportLayer() {
   // Click → popup
   map.on("click", "airports-layer", (e) => {
     e.originalEvent.stopPropagation();
-    const { iata, name, city, state } = e.features[0].properties;
-    new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
-      .setLngLat(e.features[0].geometry.coordinates)
+    const feat = e.features[0];
+    const { iata, name, city, state } = feat.properties;
+    const [lon, lat] = feat.geometry.coordinates;
+
+    const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
+      .setLngLat(feat.geometry.coordinates)
       .setHTML(`
-        <div style="font-size:13px;line-height:1.5">
-          <strong style="font-size:15px">${iata}</strong><br>
-          ${name}<br>
-          <span style="color:#aaa">${city}, ${state}</span>
+        <div class="airport-popup">
+          <div class="airport-popup__header">
+            <strong class="airport-popup__iata">${iata}</strong>
+            <span class="airport-popup__location">${city}, ${state}</span>
+          </div>
+          <div class="airport-popup__name">${name}</div>
+          <button class="airport-popup__set-origin" type="button">Set as Origin</button>
         </div>`)
       .addTo(map);
+
+    // Wire button after popup is added to DOM
+    popup.getElement()
+      .querySelector(".airport-popup__set-origin")
+      ?.addEventListener("click", () => {
+        setOriginMarker([lon, lat], `${iata} – ${city}, ${state}`);
+        if (selectedParks.length >= 1) debounceRouteUpdate(120);
+        popup.remove();
+      });
   });
 
   // Toggle wiring

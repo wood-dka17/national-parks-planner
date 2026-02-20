@@ -1837,3 +1837,23 @@ body.wizard-open { overflow: hidden; }
     max-height: 92vh;
   }
 }
+
+/* ── Airport map popup ───────────────────────────────────── */
+.airport-popup { font-size: 13px; line-height: 1.5; min-width: 160px; }
+.airport-popup__header {
+  display: flex; align-items: baseline; gap: 6px;
+  margin-bottom: 2px;
+}
+.airport-popup__iata { font-size: 16px; font-weight: 700; color: var(--text); }
+.airport-popup__location { font-size: 12px; color: var(--text-muted); }
+.airport-popup__name { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.airport-popup__set-origin {
+  display: block; width: 100%;
+  padding: 6px 0;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.airport-popup__set-origin:hover { background: var(--accent-hover); }

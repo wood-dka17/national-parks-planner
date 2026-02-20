@@ -53,6 +53,7 @@
   --z-tooltip:      300;
   --z-toast:        400;
   --z-mobile-btn:   500;
+  --z-wizard:       600;
 }
 
 /* ---------- Reset & Base ---------- */
@@ -1637,3 +1638,193 @@ body.is-routing #sidebar::after {
 /* ---------- Park info card — LEGACY COMPAT ---------- */
 /* app.js still creates #park-card; keep hidden since we now use #detail-panel */
 #park-card { display: none !important; }
+
+/* ===============================
+   BUILD MY TRIP WIZARD
+================================ */
+
+/* Launch button: full-width, sits between chips and mode-tabs */
+.wizard-launch-btn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+/* Overlay backdrop */
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-wizard);
+  background: rgba(26, 26, 46, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal card */
+.wizard-modal {
+  position: relative;
+  width: min(540px, 95vw);
+  max-height: 90vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Close button */
+.wizard-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 150ms, color 150ms;
+}
+.wizard-modal__close:hover { background: var(--divider); color: var(--text); }
+
+/* Each step */
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 28px 24px;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Header */
+.wizard-header { margin-bottom: 20px; flex-shrink: 0; }
+
+/* Step indicator dots */
+.wizard-step-indicator { display: flex; gap: 6px; margin-bottom: 12px; }
+.ws-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border);
+  transition: background 200ms;
+}
+.ws-dot--active { background: var(--accent); }
+.ws-dot--done   { background: var(--accent-border); }
+
+/* Titles */
+.wizard-title {
+  font-size: 20px; font-weight: 600;
+  color: var(--text); margin: 0 0 4px; line-height: 1.2;
+}
+.wizard-subtitle { font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5; }
+
+/* Step 1: Region grid */
+.wizard-regions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 340px;
+  padding-right: 4px;
+  flex: 1; min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--divider) transparent;
+}
+.wizard-regions::-webkit-scrollbar { width: 4px; }
+.wizard-regions::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 2px; }
+
+.wizard-region-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg); color: var(--text);
+  cursor: pointer; font: inherit; font-size: 13px; font-weight: 500; text-align: center;
+  transition: background 120ms, border-color 120ms, box-shadow 120ms;
+}
+.wizard-region-btn:hover { background: var(--accent-light); border-color: var(--accent-border); }
+.wizard-region-btn.is-active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.wizard-region-emoji { font-size: 26px; line-height: 1; }
+.wizard-region-label { font-size: 12px; font-weight: 600; line-height: 1.3; }
+
+/* Step 2: Days input */
+.wizard-days-wrap {
+  display: flex; align-items: center; gap: 14px;
+  margin: 20px 0 28px; flex-shrink: 0;
+}
+.wizard-days-input {
+  width: 90px; padding: 10px 14px;
+  font-size: 28px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  background: var(--bg);
+  border: 2px solid var(--accent); border-radius: var(--radius-md);
+  color: var(--text); outline: none;
+  transition: box-shadow 150ms;
+}
+.wizard-days-input:focus { box-shadow: 0 0 0 3px var(--accent-light); }
+.wizard-days-label { font-size: 18px; font-weight: 500; color: var(--text-muted); }
+
+/* Step 3: Park list */
+.wizard-park-list {
+  overflow-y: auto;
+  max-height: 340px;
+  display: flex; flex-direction: column; gap: 5px;
+  padding-right: 4px;
+  flex: 1; min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--divider) transparent;
+}
+.wizard-park-list::-webkit-scrollbar { width: 4px; }
+.wizard-park-list::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 2px; }
+
+.wizard-park-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg);
+  cursor: pointer;
+  transition: background 100ms, border-color 100ms;
+}
+.wizard-park-row:hover { background: var(--accent-light); border-color: var(--accent-border); }
+.wizard-park-row:has(input:checked) { background: var(--accent-light); border-color: var(--accent); }
+.wizard-park-chk { flex-shrink: 0; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.wizard-park-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+.wizard-park-state {
+  flex-shrink: 0; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); letter-spacing: 0.03em; text-transform: uppercase;
+}
+
+/* Footer nav row */
+.wizard-footer {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding-top: 20px; margin-top: auto;
+  border-top: 1px solid var(--divider); flex-shrink: 0;
+}
+.wizard-footer .btn { flex: 1; justify-content: center; }
+
+/* Body scroll-lock */
+body.wizard-open { overflow: hidden; }
+
+/* Mobile: bottom sheet */
+@media (max-width: 767px) {
+  .wizard-overlay { align-items: flex-end; }
+  .wizard-modal {
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+  }
+}

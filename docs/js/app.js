@@ -775,10 +775,13 @@ function renderOptimizeSummary(summary) {
       <div><span class="k">Longest leg (before)</span><span class="v">${fmt(summary.beforeLongest)} hr</span></div>
       <div><span class="k">Longest leg (after)</span><span class="v">${fmt(summary.afterLongest)} hr</span></div>
     </div>
-    <div class="optcard__small mono">
-      <div><span class="muted">Before:</span> ${summary.beforeOrder.join(" → ")}</div>
-      <div style="margin-top:6px;"><span class="muted">After:</span> ${summary.afterOrder.join(" → ")}</div>
-    </div>
+    <details class="optcard__order">
+      <summary class="optcard__order-toggle">Stop order changes</summary>
+      <div class="optcard__order-body mono">
+        <div><span class="muted">Before:</span> ${summary.beforeOrder.join(" → ")}</div>
+        <div style="margin-top:6px;"><span class="muted">After:</span> ${summary.afterOrder.join(" → ")}</div>
+      </div>
+    </details>
   `;
   optSummaryEl.appendChild(el);
 }

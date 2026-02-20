@@ -1319,6 +1319,46 @@ select:focus {
 }
 .nps-alert__link:hover { text-decoration: underline; }
 
+/* ── Route Info tab ─────────────────────────────── */
+.route-info-card {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  background: var(--bg);
+}
+
+.route-info-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.route-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  padding: 3px 0;
+  border-top: 1px solid var(--divider);
+}
+
+.route-info-row:first-of-type { border-top: none; }
+
+.route-info-row span:first-child {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.route-info-row span:last-child {
+  text-align: right;
+  font-weight: 500;
+  color: var(--text);
+}
+
 .detail-desc {
   margin: 0;
   font-size: 13px;

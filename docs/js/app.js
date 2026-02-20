@@ -1124,14 +1124,50 @@ function printTrip() {
 
   const totalMiles = currentLegs.reduce((s, l) => s + (l.miles || 0), 0);
   const totalHours = currentLegs.reduce((s, l) => s + (l.hours || 0), 0);
+  const requiredDays = plan.length;
   const builtAt    = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  // Build stops list HTML
-  const stopsHtml = selectedParks.map((p, i) =>
-    `<li>${i + 1}. ${p.name}${p.mustSee === false ? " <em>(optional)</em>" : ""}</li>`
-  ).join("");
+  // ── Stops cards with park descriptions ────────────────────────────────────
+  const stopsCardsHtml = selectedParks.map((p, i) => {
+    const parkData = p.source !== "stamp" ? PARKS_DATA[p.id] : null;
+    const desc = parkData?.description ?? "";
+    const acres = parkData?.acres ? `${Number(parkData.acres).toLocaleString()} acres` : "";
+    const season = parkData?.bestSeason ? `Best: ${parkData.bestSeason}` : "";
+    const parkCode = parkData?.parkCode ?? "";
+    const npsUrl = parkCode ? `https://www.nps.gov/${parkCode}/index.htm` : "";
+    const meta = [acres, season].filter(Boolean).join(" · ");
 
-  // Build day plan HTML
+    // Nearby campgrounds (within 80 km)
+    const nearbyCamps = (campgroundCache ?? []).filter((c) => {
+      if (!Array.isArray(c.geometry?.coordinates)) return false;
+      const [cLon, cLat] = c.geometry.coordinates;
+      return haversineKm(p.coords, [cLon, cLat]) <= 80;
+    }).slice(0, 3);
+
+    const campsHtml = nearbyCamps.length
+      ? `<div class="pdf-camps">
+          <div class="pdf-camps-label">Nearby lodging:</div>
+          ${nearbyCamps.map((c) => `<div class="pdf-camp-item">
+            ${c.properties.name}
+            ${c.properties.fee ? ` — ${c.properties.fee}` : ""}
+            ${c.properties.type === "Lodge" ? " (Lodge)" : ""}
+          </div>`).join("")}
+        </div>`
+      : "";
+
+    return `<div class="pdf-stop">
+      <div class="pdf-stop-num">${i + 1}</div>
+      <div class="pdf-stop-body">
+        <div class="pdf-stop-name">${p.name}${p.mustSee === false ? ' <span class="pdf-optional">(optional)</span>' : ""}</div>
+        ${meta ? `<div class="pdf-stop-meta">${meta}</div>` : ""}
+        ${desc ? `<p class="pdf-stop-desc">${desc.slice(0, 220)}${desc.length > 220 ? "…" : ""}</p>` : ""}
+        ${npsUrl ? `<a class="pdf-stop-link" href="${npsUrl}">${npsUrl}</a>` : ""}
+        ${campsHtml}
+      </div>
+    </div>`;
+  }).join("");
+
+  // ── Day-by-day schedule ───────────────────────────────────────────────────
   const dayPlanHtml = plan.map((d) => {
     let clockMins = d.startMins;
     const rows = [];
@@ -1141,24 +1177,41 @@ function printTrip() {
       const legMins = Math.round((leg.hours || 0) * 60);
       const departAt = clockMins;
       const arriveAt = clockMins + legMins;
-      clockMins = arriveAt;
+      clockMins = arriveAt + Math.round(tripRules.visitHoursPerPark * 60);
 
       if (legPos === 0) {
         rows.push(`<div class="pdf-node pdf-node--start"><span class="pdf-time">${minsToHHMM(departAt)}</span><span class="pdf-place">${leg.fromName}</span></div>`);
       }
-      rows.push(`<div class="pdf-drive">↓ ${fmt(leg.miles)} mi · ${fmt(leg.hours)} hr drive</div>`);
-      rows.push(`<div class="pdf-node"><span class="pdf-time">${minsToHHMM(arriveAt)}</span><span class="pdf-place">${leg.toName}</span></div>`);
+      rows.push(`<div class="pdf-drive"><span class="pdf-drive-arrow">↓</span>${fmt(leg.miles)} mi · ${fmt(leg.hours)} hr drive</div>`);
+      rows.push(
+        `<div class="pdf-node">` +
+        `<span class="pdf-time">${minsToHHMM(arriveAt)}</span>` +
+        `<span class="pdf-place">${leg.toName}</span>` +
+        `<span class="pdf-visit-hint">~${tripRules.visitHoursPerPark}hr visit</span>` +
+        `</div>`
+      );
     });
 
     return `
       <div class="pdf-day">
         <div class="pdf-day-header">
-          Day ${d.day}
+          <span class="pdf-day-label">Day ${d.day}</span>
           <span class="pdf-day-meta">${fmt(d.miles)} mi · ${fmt(d.driveHours)} hr drive · ${minsToHHMM(d.startMins)}–${minsToHHMM(d.endMins)}</span>
         </div>
         <div class="pdf-timeline">${rows.join("")}</div>
       </div>`;
   }).join("");
+
+  // ── Trip rules summary ────────────────────────────────────────────────────
+  const rulesHtml = `
+    <div class="pdf-rules-grid">
+      <div><span class="pdf-rule-label">Drive hrs/day:</span> ${tripRules.maxDriveHoursPerDay}</div>
+      <div><span class="pdf-rule-label">Wake / Sleep:</span> ${tripRules.wakeHHMM}–${tripRules.sleepHHMM}</div>
+      <div><span class="pdf-rule-label">Speed:</span> ${tripRules.speedMph} mph</div>
+      <div><span class="pdf-rule-label">Visit hrs/park:</span> ${tripRules.visitHoursPerPark}</div>
+      <div><span class="pdf-rule-label">Round trip:</span> ${document.getElementById("roundtrip")?.checked ? "Yes" : "No"}</div>
+      ${tripRules.travelMonth ? `<div><span class="pdf-rule-label">Travel month:</span> ${["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][tripRules.travelMonth]}</div>` : ""}
+    </div>`;
 
   // Airport suggestion text
   const airportEl  = document.getElementById("airport-suggestion-content");
@@ -1173,61 +1226,92 @@ function printTrip() {
 <meta charset="utf-8"/>
 <title>National Parks Trip — ${builtAt}</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Georgia",serif;color:#111;background:#fff;padding:32px;max-width:720px;margin:auto;font-size:14px;line-height:1.6}
-  h1{font-size:22px;font-weight:700;margin-bottom:4px}
-  h2{font-size:15px;font-weight:700;margin:0 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px}
-  .pdf-meta{color:#555;font-size:12px;margin-bottom:24px}
-  .pdf-section{margin-bottom:28px}
-  .pdf-summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px}
-  .pdf-stat{border:1px solid #ddd;border-radius:6px;padding:10px 14px}
-  .pdf-stat__label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em}
-  .pdf-stat__value{font-size:18px;font-weight:700;color:#111}
-  ol,ul{padding-left:18px}
-  li{margin-bottom:3px}
-  .pdf-day{border:1px solid #ddd;border-radius:8px;padding:14px 18px;margin-bottom:16px;page-break-inside:avoid}
-  .pdf-day-header{font-weight:700;font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
-  .pdf-day-meta{font-size:12px;color:#666;font-weight:400}
-  .pdf-timeline{display:flex;flex-direction:column;gap:2px}
-  .pdf-node{display:flex;align-items:baseline;gap:12px}
-  .pdf-node--start .pdf-time{color:#888}
-  .pdf-time{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;min-width:40px;text-align:right;color:#7700cc;flex-shrink:0}
-  .pdf-place{font-size:13px;font-weight:600}
-  .pdf-drive{font-size:11px;color:#888;margin-left:52px;padding:2px 0;font-style:italic}
-  .pdf-airports{font-family:inherit;white-space:pre-wrap;font-size:13px;color:#333}
-  .pdf-footer{margin-top:36px;border-top:1px solid #eee;padding-top:12px;font-size:11px;color:#aaa;text-align:center}
-  @media print{
-    body{padding:16px}
-    .pdf-day{page-break-inside:avoid}
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Georgia",serif;color:#111;background:#fff;padding:40px 48px;max-width:760px;margin:0 auto;font-size:14px;line-height:1.65}
+a{color:#2d6a4f;word-break:break-all}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#555;margin:0 0 10px;border-bottom:2px solid #2d6a4f;padding-bottom:5px}
+.pdf-header-meta{color:#777;font-size:12px;margin-bottom:32px}
+.pdf-section{margin-bottom:36px}
+
+/* Summary stats */
+.pdf-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+.pdf-stat{border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px}
+.pdf-stat__label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.pdf-stat__value{font-size:20px;font-weight:700;color:#111;font-family:"Georgia",serif}
+
+/* Rules */
+.pdf-rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 16px;font-size:12px;color:#555}
+.pdf-rule-label{font-weight:700;color:#333}
+
+/* Stop cards */
+.pdf-stops{display:flex;flex-direction:column;gap:12px}
+.pdf-stop{display:flex;gap:12px;padding:14px;border:1px solid #e0e0e0;border-radius:10px;page-break-inside:avoid}
+.pdf-stop-num{font-size:20px;font-weight:700;color:#2d6a4f;min-width:28px;text-align:center;padding-top:2px;font-family:"Georgia",serif}
+.pdf-stop-body{flex:1;min-width:0}
+.pdf-stop-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.pdf-optional{font-size:11px;font-weight:400;color:#999;font-style:italic}
+.pdf-stop-meta{font-size:11px;color:#888;margin-bottom:5px}
+.pdf-stop-desc{font-size:12px;color:#555;line-height:1.55;margin-bottom:6px}
+.pdf-stop-link{font-size:11px}
+.pdf-camps{margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0}
+.pdf-camps-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#999;margin-bottom:3px}
+.pdf-camp-item{font-size:11px;color:#444;padding:1px 0}
+
+/* Day-by-day */
+.pdf-day{border:1px solid #e0e0e0;border-radius:10px;padding:14px 18px;margin-bottom:14px;page-break-inside:avoid}
+.pdf-day-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.pdf-day-label{font-size:16px;font-weight:700;color:#2d6a4f;font-family:"Georgia",serif}
+.pdf-day-meta{font-size:11px;color:#888}
+.pdf-timeline{display:flex;flex-direction:column;gap:1px;padding-left:16px;border-left:2px solid #e8f5e9}
+.pdf-node{display:flex;align-items:baseline;gap:10px;padding:3px 0}
+.pdf-node--start .pdf-time{color:#aaa}
+.pdf-time{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;min-width:38px;text-align:right;color:#2d6a4f;flex-shrink:0}
+.pdf-place{font-size:13px;font-weight:600;flex:1}
+.pdf-visit-hint{font-size:10px;color:#aaa;white-space:nowrap}
+.pdf-drive{font-size:11px;color:#aaa;padding:4px 0 4px 48px;font-style:italic}
+.pdf-drive-arrow{margin-right:6px;color:#c8e6c9}
+.pdf-airports{font-family:inherit;white-space:pre-wrap;font-size:12px;color:#444;background:#f9f9f9;padding:12px;border-radius:6px;border:1px solid #e0e0e0}
+.pdf-footer{margin-top:40px;border-top:1px solid #eee;padding-top:14px;font-size:10px;color:#bbb;text-align:center}
+@media print{
+  body{padding:20px 28px}
+  .pdf-stop,.pdf-day{page-break-inside:avoid}
+  a{color:#2d6a4f}
+}
 </style>
 </head>
 <body>
 <h1>National Parks Trip Itinerary</h1>
-<p class="pdf-meta">Generated ${builtAt} · ${selectedParks.length} stops · ${fmt(totalMiles)} mi · ${fmt(totalHours)} hr total drive</p>
+<p class="pdf-header-meta">Generated ${builtAt} · ${selectedParks.length} stops · ${fmt(totalMiles)} mi total · ${fmt(totalHours)} hr total drive · ${requiredDays || "—"} days</p>
 
 <section class="pdf-section">
   <h2>Trip Summary</h2>
   <div class="pdf-summary-grid">
-    <div class="pdf-stat"><div class="pdf-stat__label">Total Miles</div><div class="pdf-stat__value">${fmt(totalMiles)} mi</div></div>
-    <div class="pdf-stat"><div class="pdf-stat__label">Total Drive</div><div class="pdf-stat__value">${fmt(totalHours)} hr</div></div>
-    <div class="pdf-stat"><div class="pdf-stat__label">Days</div><div class="pdf-stat__value">${plan.length || "—"}</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Total Miles</div><div class="pdf-stat__value">${fmt(totalMiles)}</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Drive Hours</div><div class="pdf-stat__value">${fmt(totalHours)}</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Days</div><div class="pdf-stat__value">${requiredDays || "—"}</div></div>
+    <div class="pdf-stat"><div class="pdf-stat__label">Parks</div><div class="pdf-stat__value">${selectedParks.length}</div></div>
   </div>
 </section>
 
 <section class="pdf-section">
-  <h2>Stops (${selectedParks.length})</h2>
-  <ul>${stopsHtml}</ul>
+  <h2>Trip Rules</h2>
+  ${rulesHtml}
+</section>
+
+<section class="pdf-section">
+  <h2>Stops &amp; Park Details</h2>
+  <div class="pdf-stops">${stopsCardsHtml}</div>
 </section>
 
 ${airportHtml}
 
 <section class="pdf-section">
   <h2>Day-by-Day Schedule</h2>
-  ${dayPlanHtml || "<p>Generate a day plan in the Day-by-Day tab first.</p>"}
+  ${dayPlanHtml || "<p style='color:#888;font-size:13px'>Generate a day plan in the Day-by-Day tab first, then re-open Print.</p>"}
 </section>
 
-<div class="pdf-footer">National Parks Planner · national-parks-planner.github.io</div>
+<div class="pdf-footer">National Parks Planner · national-parks-planner.github.io · Printed ${builtAt}</div>
 </body>
 </html>`;
 
@@ -3298,6 +3382,74 @@ function renderAlertsPane(alerts) {
   if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [pane] });
 }
 
+function renderRouteInfoPane() {
+  const pane = document.getElementById("detail-pane-route");
+  if (!pane) return;
+
+  if (!currentLegs.length) {
+    pane.innerHTML = `<p class="empty-state">Build a route first to see leg details.</p>`;
+    return;
+  }
+
+  // Find which stop position this park occupies in selectedParks
+  let stopIdx = -1;
+  if (detailPanelCardMode === "park" && detailPanelCurrentParkIndex != null) {
+    stopIdx = selectedParks.findIndex((p) => p.id === detailPanelCurrentParkIndex);
+  } else if (detailPanelCardMode === "stamp" && detailPanelStampData) {
+    const stamId = `stamp:${detailPanelStampData.parkCode}`;
+    stopIdx = selectedParks.findIndex((p) => p.id === stamId || p.id === detailPanelStampData.parkCode);
+  }
+
+  if (stopIdx === -1) {
+    pane.innerHTML = `<p class="empty-state">This stop is not in your current route.</p>`;
+    return;
+  }
+
+  // Legs arriving at and departing from this stop
+  const arrivingLeg  = currentLegs[stopIdx - 1] ?? null;
+  const departingLeg = currentLegs[stopIdx] ?? null;
+
+  const legCard = (leg, label) => {
+    const dist = fmt(leg.miles);
+    const hrs  = fmt(leg.hours);
+    const departureMins = (() => {
+      if (!dayPlan.length) return null;
+      // Find which day this leg is in
+      for (const d of dayPlan) {
+        const legPos = d.legs.indexOf(currentLegs.indexOf(leg));
+        if (legPos !== -1) {
+          let mins = d.startMins;
+          for (let i = 0; i <= legPos; i++) {
+            const l = currentLegs[d.legs[i]];
+            if (i === legPos) return { depart: mins, arrive: mins + Math.round((l.hours || 0) * 60) };
+            mins += Math.round((l.hours || 0) * 60) + Math.round(tripRules.visitHoursPerPark * 60);
+          }
+        }
+      }
+      return null;
+    })();
+
+    const timeRow = departureMins
+      ? `<div class="route-info-row"><span>Depart/Arrive</span><span>${minsToHHMM(departureMins.depart)} → ${minsToHHMM(departureMins.arrive)}</span></div>`
+      : "";
+
+    return `<div class="route-info-card">
+      <div class="route-info-card__label">${label}</div>
+      <div class="route-info-row"><span>From → To</span><span>${leg.fromName} → ${leg.toName}</span></div>
+      <div class="route-info-row"><span>Distance</span><span>${dist} mi</span></div>
+      <div class="route-info-row"><span>Drive time</span><span>~${hrs} hr</span></div>
+      ${timeRow}
+    </div>`;
+  };
+
+  const cards = [
+    arrivingLeg  ? legCard(arrivingLeg,  "Arriving leg")  : "",
+    departingLeg ? legCard(departingLeg, "Departing leg") : "",
+  ].filter(Boolean).join("");
+
+  pane.innerHTML = cards || `<p class="empty-state">No adjacent legs found for this stop.</p>`;
+}
+
 function switchDetailTab(tabName) {
   document.querySelectorAll(".detail-tab").forEach((btn) => {
     const isActive = btn.dataset.tab === tabName;
@@ -3319,20 +3471,20 @@ function switchDetailTab(tabName) {
     return null;
   })();
 
-  if (!parkCode) return;
-
-  if (tabName === "activities") {
+  if (tabName === "activities" && parkCode) {
     const pane = document.getElementById("detail-pane-activities");
     if (pane && !_npsActivitiesCache.has(parkCode)) {
       pane.innerHTML = `<p class="empty-state">Loading activities…</p>`;
     }
     fetchNpsActivities(parkCode).then(renderActivitiesPane);
-  } else if (tabName === "alerts") {
+  } else if (tabName === "alerts" && parkCode) {
     const pane = document.getElementById("detail-pane-alerts");
     if (pane && !_npsAlertsCache.has(parkCode)) {
       pane.innerHTML = `<p class="empty-state">Loading alerts…</p>`;
     }
     fetchNpsAlerts(parkCode).then(renderAlertsPane);
+  } else if (tabName === "route") {
+    renderRouteInfoPane();
   }
 }
 

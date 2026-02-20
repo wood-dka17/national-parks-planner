@@ -212,24 +212,23 @@ async function main() {
   const parkCodes = parks.map((p) => p.parkCode);
   const vcByCode  = new Map();
 
-  // Fetch in small batches (10 park codes at a time) with full pagination so we
-  // don't miss visitor centers. latitude/longitude are returned by default —
-  // no special fields parameter needed.
-  for (let i = 0; i < parkCodes.length; i += 10) {
-    const batch = parkCodes.slice(i, i + 10);
+  // The NPS visitorcenters API does NOT support URL-encoded commas in parkCode,
+  // so we must fetch each park individually. latitude/longitude are returned by
+  // default — no special fields parameter needed.
+  for (const code of parkCodes) {
     try {
-      const vcs = await npsGetAll("visitorcenters", { parkCode: batch.join(",") });
+      const vcs = await npsGetAll("visitorcenters", { parkCode: code });
       for (const vc of vcs) {
-        const code = vc.parkCode?.toLowerCase();
-        if (!code || vcByCode.has(code)) continue;
+        const vcCode = vc.parkCode?.toLowerCase();
+        if (!vcCode || vcByCode.has(vcCode)) continue;
         const lat = parseFloat(vc.latitude);
         const lon = parseFloat(vc.longitude);
         if (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {
-          vcByCode.set(code, { lat, lon, visitorCenterName: vc.name ?? "" });
+          vcByCode.set(vcCode, { lat, lon, visitorCenterName: vc.name ?? "" });
         }
       }
     } catch (e) {
-      console.warn("  VC batch failed:", e.message);
+      console.warn(`  VC fetch failed for ${code}:`, e.message);
     }
   }
 

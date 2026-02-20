@@ -2132,12 +2132,13 @@ function openStampCard(stamp) {
   document.getElementById("park-card-designation")?.classList.remove("is-hidden");
   document.getElementById("park-card-passport")?.classList.remove("is-hidden");
 
-  // Populate fields (guard with ?. — these sidebar card elements may not exist in all layouts)
-  document.getElementById("park-card-name")?.textContent  = stamp.name;
-  document.getElementById("park-card-state")?.textContent = stamp.states ?? "";
-  document.getElementById("park-card-desc")?.textContent  = stamp.designation;
-  document.getElementById("park-card-designation-val")?.textContent = stamp.designation;
-  document.getElementById("park-card-passport-val")?.textContent    = stamp.passportRegion ?? "—";
+  // Populate fields (guard with if — these sidebar card elements may not exist in all layouts)
+  const _setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  _setText("park-card-name",            stamp.name);
+  _setText("park-card-state",           stamp.states ?? "");
+  _setText("park-card-desc",            stamp.designation);
+  _setText("park-card-designation-val", stamp.designation);
+  _setText("park-card-passport-val",    stamp.passportRegion ?? "—");
   const _stampLinkEl = document.getElementById("park-card-link");
   if (_stampLinkEl) _stampLinkEl.href = `https://www.nps.gov/${stamp.parkCode}/index.htm`;
 

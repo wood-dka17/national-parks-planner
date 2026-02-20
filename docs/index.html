@@ -203,10 +203,10 @@
             </div>
           </div>
 
-          <!-- Trip Origin -->
+          <!-- Trip Origin + Fly-in/Fly-out Airports -->
           <div class="collapsible-block" data-block="origin">
             <button class="collapsible-toggle" type="button" aria-expanded="true">
-              <span class="collapsible-toggle__label">Trip Origin</span>
+              <span class="collapsible-toggle__label">Trip Origin &amp; Airports</span>
               <i data-lucide="chevron-down" width="14" height="14" class="chevron"></i>
             </button>
             <div class="collapsible-content">
@@ -227,6 +227,11 @@
                 />
                 <div id="origin-results" class="origin-results is-hidden"></div>
               </div>
+              <!-- Airport Suggestion (shown when 2+ stops selected) -->
+              <div id="airport-suggestion" class="airport-suggestion-inline is-hidden">
+                <div class="airport-suggestion-inline__label">✈ Suggested Airports</div>
+                <div id="airport-suggestion-content" class="airport-suggestion-content"></div>
+              </div>
             </div>
           </div>
 
@@ -240,12 +245,6 @@
               <div class="stops__hint subtle">Click a park on the map to add · double-click to remove</div>
               <div id="stops-list" class="stops-list" aria-label="Selected stops list"></div>
             </div>
-          </div>
-
-          <!-- Airport Suggestion (shown when 2+ stops selected) -->
-          <div class="section is-hidden" id="airport-suggestion">
-            <div class="section__label">✈ Suggested Airports</div>
-            <div id="airport-suggestion-content" class="airport-suggestion-content"></div>
           </div>
 
           <!-- Summary -->

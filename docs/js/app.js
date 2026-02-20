@@ -2959,12 +2959,12 @@ function initStampLayers() {
 
   // Layer configs: [groupKey, color, radius, opacity]
   const LAYER_CONFIG = [
-    // National Parks — deep green
-    ["national-park",    "#2d6a4f", 8, 0.90],
-    // National Seashores — ocean blue
-    ["national-seashore","#0077b6", 6, 0.85],
-    // Other stamp locations — amber/gold
-    ["other",            "#d4a017", 5, 0.80]
+    // National Parks — vivid amber-orange (high contrast against green outdoors map)
+    ["national-park",    "#f4801a", 9, 0.95],
+    // National Seashores — vivid cyan/teal
+    ["national-seashore","#00b4d8", 7, 0.90],
+    // Other stamp locations — soft violet-purple
+    ["other",            "#9b59b6", 6, 0.85]
   ];
 
   LAYER_CONFIG.forEach(([key, color, radius, opacity]) => {
@@ -3570,7 +3570,7 @@ function initMap() {
       type: "line",
       source: "route",
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#2d6a4f", "line-width": 4, "line-opacity": 0.9 }
+      paint: { "line-color": "#1a6fdf", "line-width": 4, "line-opacity": 0.85 }
     });
 
     map.addLayer({
@@ -3578,7 +3578,7 @@ function initMap() {
       type: "line",
       source: "route-highlight",
       layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": "#52b788", "line-width": 5, "line-opacity": 0.9 }
+      paint: { "line-color": "#ff5722", "line-width": 6, "line-opacity": 0.95 }
     });
 
     // Leg drive-time labels at midpoint of each leg

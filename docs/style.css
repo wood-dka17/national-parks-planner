@@ -1617,9 +1617,9 @@ body.is-routing #sidebar::after {
   flex-shrink: 0;
 }
 
-.layer-dot--np      { background: var(--accent); }
-.layer-dot--ss      { background: #0077b6; }
-.layer-dot--other   { background: #d4a017; }
+.layer-dot--np      { background: #f4801a; }
+.layer-dot--ss      { background: #00b4d8; }
+.layer-dot--other   { background: #9b59b6; }
 .layer-dot--airport { background: transparent; font-size: 14px; line-height: 1; }
 .layer-dot--camp    { background: transparent; font-size: 14px; line-height: 1; }
 
@@ -1674,14 +1674,23 @@ body.is-routing #sidebar::after {
   font-style: italic;
 }
 
-/* ---------- Airport suggestion ---------- */
-#airport-suggestion {
-  margin: 0 12px 8px;
+/* ---------- Airport suggestion (inline inside Origin block) ---------- */
+.airport-suggestion-inline {
+  margin-top: 10px;
   padding: 10px 12px;
-  background: var(--surface);
-  border: 1px solid var(--accent-border);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 13px;
+}
+
+.airport-suggestion-inline__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
 }
 
 .section__label {

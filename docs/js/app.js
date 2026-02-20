@@ -866,14 +866,43 @@ function renderDayPlan(plan, droppedOptional = []) {
     const card = document.createElement("div");
     card.className = "daycard";
 
-    const legsText = d.legs
-      .map((idx) => {
-        const leg = currentLegs[idx];
-        return `<div class="dayleg">${leg.fromName} → ${leg.toName}
-          <span class="muted">(${fmt(leg.miles)} mi, ${fmt(leg.hours)} hr)</span>
-        </div>`;
-      })
-      .join("");
+    // Build timed leg entries — walk a running clock through the day
+    let clockMins = d.startMins;
+    const timedRows = [];
+
+    d.legs.forEach((idx, legPos) => {
+      const leg      = currentLegs[idx];
+      const legMins  = Math.round((leg.hours || 0) * 60);
+      const departAt = clockMins;
+      const arriveAt = clockMins + legMins;
+      clockMins = arriveAt;
+
+      // First leg: show the departure location as a start node
+      if (legPos === 0) {
+        timedRows.push(
+          `<div class="dayleg-node dayleg-node--start">` +
+          `<span class="dayleg-node__time">${minsToHHMM(departAt)}</span>` +
+          `<span class="dayleg-node__name">${leg.fromName}</span>` +
+          `</div>`
+        );
+      }
+
+      // Drive segment
+      timedRows.push(
+        `<div class="dayleg-drive">` +
+        `<span class="dayleg-drive__bar"></span>` +
+        `<span class="dayleg-drive__label">${fmt(leg.miles)} mi · ${fmt(leg.hours)} hr drive</span>` +
+        `</div>`
+      );
+
+      // Arrival node
+      timedRows.push(
+        `<div class="dayleg-node dayleg-node--arrive">` +
+        `<span class="dayleg-node__time">${minsToHHMM(arriveAt)}</span>` +
+        `<span class="dayleg-node__name">${leg.toName}</span>` +
+        `</div>`
+      );
+    });
 
     card.innerHTML = `
       <div class="daycard__top">
@@ -884,7 +913,7 @@ function renderDayPlan(plan, droppedOptional = []) {
           <span class="chip">${minsToHHMM(d.startMins)}–${minsToHHMM(d.endMins)}</span>
         </div>
       </div>
-      <div class="daycard__body">${legsText}</div>
+      <div class="daycard__body daycard__timeline">${timedRows.join("")}</div>
     `;
 
     container.appendChild(card);
@@ -905,23 +934,31 @@ function exportDayPlanCSV() {
   lines.push(["BreakMinutesPerDay", tripRules.breakMinutesPerDay].join(","));
   lines.push(["SpeedMph", tripRules.speedMph].join(","));
   lines.push("");
-  lines.push(["Day", "Start", "End", "DriveHours", "Miles", "Legs"].join(","));
+  lines.push(["Day", "Leg", "Depart", "From", "Arrive", "To", "Miles", "DriveHr"].join(","));
 
   dayPlan.forEach((d) => {
-    const legsLabel = d.legs
-      .map((idx) => `${currentLegs[idx].fromName}→${currentLegs[idx].toName}`)
-      .join(" | ");
+    let clockMins = d.startMins;
+    d.legs.forEach((idx, legPos) => {
+      const leg     = currentLegs[idx];
+      const legMins = Math.round((leg.hours || 0) * 60);
+      const departAt = clockMins;
+      const arriveAt = clockMins + legMins;
+      clockMins = arriveAt;
 
-    lines.push(
-      [
-        d.day,
-        minsToHHMM(d.startMins),
-        minsToHHMM(d.endMins),
-        fmt(d.driveHours),
-        fmt(d.miles),
-        `"${legsLabel.replaceAll('"', '""')}"`
-      ].join(",")
-    );
+      const q = (s) => `"${String(s).replaceAll('"', '""')}"`;
+      lines.push(
+        [
+          d.day,
+          legPos + 1,
+          minsToHHMM(departAt),
+          q(leg.fromName),
+          minsToHHMM(arriveAt),
+          q(leg.toName),
+          fmt(leg.miles),
+          fmt(leg.hours)
+        ].join(",")
+      );
+    });
   });
 
   const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });

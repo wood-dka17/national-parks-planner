@@ -1187,6 +1187,66 @@ body.is-routing #sidebar::after{
   padding: 6px 0;
 }
 
+/* ── Day-plan timeline (arrival time estimates) ───────────────────── */
+.daycard__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0 2px;
+}
+
+/* Location node (start / arrival) */
+.dayleg-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.dayleg-node__time {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary, #bb00ff);
+  min-width: 42px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dayleg-node--start .dayleg-node__time {
+  color: #aaa;
+}
+
+.dayleg-node__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+
+/* Drive segment between nodes */
+.dayleg-drive {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.dayleg-drive__bar {
+  width: 2px;
+  height: 24px;
+  background: rgba(187, 0, 255, 0.35);
+  border-radius: 1px;
+  margin-left: 35px;   /* align with center of the time column */
+  flex-shrink: 0;
+}
+
+.dayleg-drive__label {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+}
+
 /* Park boundary toggle — loading feedback */
 label[for="show-boundaries"] span {
   transition: opacity 0.2s;

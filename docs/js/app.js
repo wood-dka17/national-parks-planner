@@ -137,8 +137,10 @@ let clearBtn,
   copyBriefBtn,
   modePlannerBtn,
   modeDayByDayBtn,
+  modeAccomBtn,
   plannerViewEl,
   dayByDayViewEl,
+  accomViewEl,
   startTimeEl,
   maxHoursEl,
   maxLegHoursEl,
@@ -1901,18 +1903,132 @@ async function updateRoute() {
 ================================ */
 function setMode(mode) {
   const isPlanner = mode === "planner";
+  const isDayByDay = mode === "daybyday";
+  const isAccom = mode === "accommodations";
 
   modePlannerBtn?.classList.toggle("is-active", isPlanner);
-  modeDayByDayBtn?.classList.toggle("is-active", !isPlanner);
+  modeDayByDayBtn?.classList.toggle("is-active", isDayByDay);
+  modeAccomBtn?.classList.toggle("is-active", isAccom);
 
   modePlannerBtn?.setAttribute("aria-selected", String(isPlanner));
-  modeDayByDayBtn?.setAttribute("aria-selected", String(!isPlanner));
+  modeDayByDayBtn?.setAttribute("aria-selected", String(isDayByDay));
+  modeAccomBtn?.setAttribute("aria-selected", String(isAccom));
 
   plannerViewEl?.classList.toggle("is-hidden", !isPlanner);
-  dayByDayViewEl?.classList.toggle("is-hidden", isPlanner);
+  dayByDayViewEl?.classList.toggle("is-hidden", !isDayByDay);
+  accomViewEl?.classList.toggle("is-hidden", !isAccom);
 
-  // This class is often used by CSS layouts to control panels
-  document.body.classList.toggle("mode-daybyday", !isPlanner);
+  document.body.classList.toggle("mode-daybyday", isDayByDay);
+
+  // Render accommodations list whenever the tab is opened
+  if (isAccom) renderAccommodationsList();
+}
+
+/* ===============================
+   ACCOMMODATIONS TAB
+================================ */
+/**
+ * Haversine distance in km between two [lon, lat] points.
+ */
+function haversineKm([lon1, lat1], [lon2, lat2]) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/**
+ * Render the #accom-list container based on cached campground data
+ * and the currently selected parks (selectedParks).
+ */
+async function renderAccommodationsList() {
+  const container = document.getElementById("accom-list");
+  if (!container) return;
+
+  // Filter state from chips
+  const showCamp  = document.getElementById("accom-filter-camp")?.checked ?? true;
+  const showLodge = document.getElementById("accom-filter-lodge")?.checked ?? true;
+
+  // No stops → placeholder
+  if (!selectedParks.length) {
+    container.innerHTML = `<div class="accom-empty">
+      <i data-lucide="tent" width="32" height="32" class="accom-empty__icon"></i>
+      <p>Add parks to your trip to see nearby campgrounds and lodges.</p>
+    </div>`;
+    if (window.lucide) lucide.createIcons({ nodes: [container] });
+    return;
+  }
+
+  // Show loading state if no data yet
+  if (!campgroundCache) {
+    container.innerHTML = `<div class="accom-empty"><p>Loading accommodations…</p></div>`;
+    await loadCampgroundData();
+    if (!campgroundCache) {
+      container.innerHTML = `<div class="accom-empty"><p>Could not load accommodation data.</p></div>`;
+      return;
+    }
+  }
+
+  // Build list of stop coords from selectedParks
+  const stopCoords = selectedParks.map((p) => {
+    const park = PARKS_DATA?.[p];
+    return park ? [park.lon ?? park.lng, park.lat] : null;
+  }).filter(Boolean);
+
+  const RADIUS_KM = 80;
+
+  // Filter features within radius of any stop, respecting type chips
+  const nearby = (campgroundCache.features || []).filter((feat) => {
+    const { type } = feat.properties;
+    const isCamp  = type === "NPS" || type === "National Forest";
+    const isLodge = type === "Lodge";
+    if (isCamp  && !showCamp)  return false;
+    if (isLodge && !showLodge) return false;
+    const coords = feat.geometry.coordinates;
+    return stopCoords.some((sc) => haversineKm(sc, coords) <= RADIUS_KM);
+  });
+
+  if (!nearby.length) {
+    container.innerHTML = `<div class="accom-empty"><p>No campgrounds or lodges found within 80 km of your stops.</p></div>`;
+    return;
+  }
+
+  // Group by type
+  const groups = { "NPS": [], "National Forest": [], "Lodge": [] };
+  nearby.forEach((f) => {
+    const t = f.properties.type;
+    if (groups[t]) groups[t].push(f);
+  });
+
+  const typeLabel  = { "NPS": "NPS Campground", "National Forest": "National Forest", "Lodge": "NPS Lodge" };
+  const typeBadge  = { "NPS": "accom-badge--nps", "National Forest": "accom-badge--usfs", "Lodge": "accom-badge--lodge" };
+  const typeIcon   = { "NPS": "⛺", "National Forest": "🌲", "Lodge": "🏨" };
+
+  let html = "";
+
+  for (const [type, feats] of Object.entries(groups)) {
+    if (!feats.length) continue;
+    // Sort alphabetically
+    feats.sort((a, b) => a.properties.name.localeCompare(b.properties.name));
+    html += `<div class="accom-group">
+      <div class="accom-group__header">${typeIcon[type]} ${typeLabel[type]} <span class="accom-group__count">(${feats.length})</span></div>`;
+    feats.forEach((f) => {
+      const { name, fee, reserveUrl } = f.properties;
+      html += `<div class="accom-card">
+        <div class="accom-card__name">${name}</div>
+        <div class="accom-card__row">
+          ${fee ? `<span class="accom-card__fee">${fee}/night</span>` : ""}
+          ${reserveUrl ? `<a class="accom-card__reserve" href="${reserveUrl}" target="_blank" rel="noopener">Reserve ↗</a>` : ""}
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
 }
 
 /* ===============================
@@ -3166,8 +3282,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
   modePlannerBtn = document.getElementById("mode-planner");
   modeDayByDayBtn = document.getElementById("mode-daybyday");
-  plannerViewEl = document.getElementById("planner-view");
+  modeAccomBtn   = document.getElementById("mode-accommodations");
+  plannerViewEl  = document.getElementById("planner-view");
   dayByDayViewEl = document.getElementById("daybyday-view");
+  accomViewEl    = document.getElementById("accommodations-view");
 
   startTimeEl = document.getElementById("start-time");
   maxHoursEl = document.getElementById("max-hours");
@@ -3208,6 +3326,23 @@ window.addEventListener("DOMContentLoaded", () => {
   // UI events
   modePlannerBtn?.addEventListener("click", () => setMode("planner"));
   modeDayByDayBtn?.addEventListener("click", () => setMode("daybyday"));
+  modeAccomBtn?.addEventListener("click", () => setMode("accommodations"));
+
+  // Accommodations: filter chips re-render the list; "Show on Map" toggles layer
+  document.getElementById("accom-filter-camp")?.addEventListener("change", () => {
+    if (!accomViewEl?.classList.contains("is-hidden")) renderAccommodationsList();
+  });
+  document.getElementById("accom-filter-lodge")?.addEventListener("change", () => {
+    if (!accomViewEl?.classList.contains("is-hidden")) renderAccommodationsList();
+  });
+  document.getElementById("accom-show-map")?.addEventListener("click", () => {
+    const chk = document.getElementById("layer-campgrounds");
+    if (chk) {
+      chk.checked = true;
+      setCampgroundVisibility(true);
+    }
+    setMode("planner");
+  });
 
   startTimeEl?.addEventListener("change", () => {
     tripRules.startTimeHHMM = startTimeEl.value || "08:00";

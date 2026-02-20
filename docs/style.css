@@ -1971,3 +1971,83 @@ body.wizard-open { overflow: hidden; }
   transition: background 150ms;
 }
 .airport-popup__set-origin:hover { background: var(--accent-hover); }
+
+/* ── Accommodations tab ──────────────────────────────────── */
+.accom-header {
+  padding: 12px 0 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.accom-intro {
+  font-size: 12px; color: var(--text-muted); margin: 0;
+}
+.accom-filters {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.accom-filter-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px; font-weight: 500; color: var(--text);
+  background: var(--bg);
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+  user-select: none;
+}
+.accom-filter-chip input { display: none; }
+.accom-filter-chip:has(input:checked) {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.accom-map-btn {
+  font-size: 12px; align-self: flex-start;
+}
+
+/* Group header */
+.accom-group { margin-bottom: 14px; }
+.accom-group__header {
+  font-size: 11px; font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 4px 0 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.accom-group__count { font-weight: 400; }
+
+/* Individual cards */
+.accom-card {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 5px;
+}
+.accom-card__name {
+  font-size: 12px; font-weight: 600; color: var(--text);
+  margin-bottom: 3px;
+}
+.accom-card__row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.accom-card__fee {
+  font-size: 11px; color: var(--text-muted);
+}
+.accom-card__reserve {
+  font-size: 11px; font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.accom-card__reserve:hover { text-decoration: underline; }
+
+/* Empty / loading state */
+.accom-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 32px 16px;
+  text-align: center;
+  color: var(--text-muted); font-size: 13px;
+}
+.accom-empty__icon { opacity: 0.3; }

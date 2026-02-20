@@ -153,11 +153,33 @@ async function main() {
     console.warn("  USFS campground fetch failed:", e.message);
   }
 
-  /* ── 3. Write output ─────────────────────────────────────────── */
+  /* ── 3. NPS Lodges (in-park lodging facilities) ──────────────── */
+  console.log("Fetching NPS lodge facilities from RIDB…");
+  try {
+    // The /facilities endpoint supports FacilityTypeDescription filtering.
+    // We fetch NPS facilities of type "Lodging" to get in-park lodges.
+    const npsLodges = await ridbGetAll("facilities", {
+      OrgAbbrevCode: "NPS",
+      FacilityTypeDescription: "Lodging",
+    });
+    console.log(`  → ${npsLodges.length} NPS lodge records`);
+
+    for (const f of npsLodges) {
+      if (seen.has(f.FacilityID)) continue;
+      seen.add(f.FacilityID);
+      const feat = toFeature(f, "Lodge");
+      if (feat) features.push(feat);
+    }
+  } catch (e) {
+    console.warn("  NPS lodge fetch failed:", e.message);
+  }
+
+  /* ── 4. Write output ─────────────────────────────────────────── */
   const geojson = { type: "FeatureCollection", features };
 
-  const npsCt  = features.filter((f) => f.properties.type === "NPS").length;
-  const usfsCt = features.filter((f) => f.properties.type === "National Forest").length;
+  const npsCt   = features.filter((f) => f.properties.type === "NPS").length;
+  const usfsCt  = features.filter((f) => f.properties.type === "National Forest").length;
+  const lodgeCt = features.filter((f) => f.properties.type === "Lodge").length;
 
   await writeFile(
     resolve(OUT_DIR, "campgrounds.json"),
@@ -166,9 +188,10 @@ async function main() {
   );
 
   console.log(`\n✅ Done.`);
-  console.log(`   campgrounds.json → ${features.length} total campgrounds`);
-  console.log(`     NPS:             ${npsCt}`);
+  console.log(`   campgrounds.json → ${features.length} total features`);
+  console.log(`     NPS campgrounds: ${npsCt}`);
   console.log(`     National Forest: ${usfsCt}`);
+  console.log(`     NPS lodges:      ${lodgeCt}`);
 }
 
 main().catch((err) => {

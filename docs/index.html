@@ -76,6 +76,7 @@
           <div class="mode-tabs" role="tablist" aria-label="Planner mode">
             <button id="mode-planner" class="is-active" type="button" role="tab" aria-selected="true" aria-controls="planner-view">Planner</button>
             <button id="mode-daybyday" type="button" role="tab" aria-selected="false" aria-controls="daybyday-view">Day-by-Day</button>
+            <button id="mode-accommodations" type="button" role="tab" aria-selected="false" aria-controls="accommodations-view">Lodging</button>
           </div>
         </header>
 
@@ -410,6 +411,30 @@
           </div>
 
         </section><!-- /daybyday-view -->
+
+        <!-- ---- ACCOMMODATIONS VIEW ---- -->
+        <section class="sidebar-section is-hidden" id="accommodations-view" role="tabpanel" aria-label="Accommodations view">
+
+          <div class="accom-header">
+            <p class="accom-intro">Campgrounds and lodges near your selected stops.</p>
+            <div class="accom-filters" role="group" aria-label="Filter accommodations">
+              <label class="accom-filter-chip">
+                <input type="checkbox" id="accom-filter-camp" checked />
+                <span>⛺ Campgrounds</span>
+              </label>
+              <label class="accom-filter-chip">
+                <input type="checkbox" id="accom-filter-lodge" checked />
+                <span>🏨 Lodges</span>
+              </label>
+            </div>
+            <button id="accom-show-map" class="btn btn--ghost accom-map-btn" type="button">
+              <i data-lucide="map-pin" width="13" height="13"></i> Show on Map
+            </button>
+          </div>
+
+          <div id="accom-list" aria-label="Accommodations list"></div>
+
+        </section><!-- /accommodations-view -->
 
       </aside><!-- /sidebar -->
 

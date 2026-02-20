@@ -1041,8 +1041,10 @@ function renderStopsList() {
     const row = document.createElement("div");
     row.className = "stop-row";
     row.dataset.idx = idx;
+    row.draggable = true;
 
     row.innerHTML = `
+      <div class="stop-row__drag-handle" aria-hidden="true" title="Drag to reorder">⠿</div>
       <div class="stop-row__num">${idx + 1}</div>
       <div class="stop-row__info">
         <div class="stop-row__name">${stop.name}${isClosed ? ` <span class="stop-badge stop-badge--closed" title="May be closed or limited access in the selected month">seasonal</span>` : ""}</div>
@@ -1057,7 +1059,77 @@ function renderStopsList() {
     container.appendChild(row);
   });
 
-  // Remove button handler
+  // ── Drag-to-reorder ────────────────────────────────────────────────────────
+  let dragSrcIdx = null;
+  let dragOverRow = null;
+
+  container.querySelectorAll(".stop-row").forEach((row) => {
+    row.addEventListener("dragstart", (e) => {
+      dragSrcIdx = Number(row.dataset.idx);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", dragSrcIdx); // required for Firefox
+      // Defer adding class so the drag image captures the non-dimmed state
+      requestAnimationFrame(() => row.classList.add("is-dragging"));
+    });
+
+    row.addEventListener("dragend", () => {
+      row.classList.remove("is-dragging");
+      if (dragOverRow) {
+        dragOverRow.classList.remove("drag-over--above", "drag-over--below");
+        dragOverRow = null;
+      }
+      dragSrcIdx = null;
+    });
+
+    row.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (dragOverRow && dragOverRow !== row) {
+        dragOverRow.classList.remove("drag-over--above", "drag-over--below");
+      }
+      dragOverRow = row;
+      const rect = row.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (e.clientY < midY) {
+        row.classList.add("drag-over--above");
+        row.classList.remove("drag-over--below");
+      } else {
+        row.classList.add("drag-over--below");
+        row.classList.remove("drag-over--above");
+      }
+    });
+
+    row.addEventListener("dragleave", () => {
+      row.classList.remove("drag-over--above", "drag-over--below");
+      if (dragOverRow === row) dragOverRow = null;
+    });
+
+    row.addEventListener("drop", (e) => {
+      e.preventDefault();
+      row.classList.remove("drag-over--above", "drag-over--below");
+      const destIdx = Number(row.dataset.idx);
+      if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
+
+      // Determine insert position (above or below the drop target)
+      const rect = row.getBoundingClientRect();
+      const insertAfter = e.clientY >= rect.top + rect.height / 2;
+
+      // Remove dragged item and re-insert at the new position
+      const [moved] = selectedParks.splice(dragSrcIdx, 1);
+      let newIdx = destIdx;
+      if (dragSrcIdx < destIdx) newIdx = destIdx - 1; // account for removal
+      if (insertAfter) newIdx += 1;
+      selectedParks.splice(newIdx, 0, moved);
+
+      renderStopsList();
+      updateMarkerNumbers();
+      renderStatus();
+      updateActionAvailability();
+      debounceRouteUpdate(120);
+    });
+  });
+
+  // ── Remove button ──────────────────────────────────────────────────────────
   container.querySelectorAll(".stop-row__remove").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const idx = Number(e.currentTarget.dataset.idx);
@@ -1075,7 +1147,7 @@ function renderStopsList() {
     });
   });
 
-  // Must-see toggle handler
+  // ── Must-see toggle ────────────────────────────────────────────────────────
   container.querySelectorAll(".stop-row__must-see").forEach((chk) => {
     chk.addEventListener("change", (e) => {
       const idx = Number(e.currentTarget.dataset.idx);

@@ -784,14 +784,48 @@ body.is-routing #sidebar::after{
 
 .stop-row{
   display: grid;
-  grid-template-columns: 26px 1fr auto;
+  grid-template-columns: 18px 26px 1fr auto;
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
   border-radius: 14px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.10);
-  transition: background 140ms ease;
+  transition: background 140ms ease, opacity 150ms ease, border-color 150ms ease;
+  cursor: default;
+  user-select: none;
+}
+
+/* Drag handle */
+.stop-row__drag-handle {
+  color: rgba(255,255,255,0.25);
+  font-size: 16px;
+  line-height: 1;
+  cursor: grab;
+  transition: color 150ms ease;
+  text-align: center;
+}
+.stop-row:hover .stop-row__drag-handle {
+  color: rgba(255,255,255,0.55);
+}
+.stop-row__drag-handle:active {
+  cursor: grabbing;
+}
+
+/* While being dragged */
+.stop-row.is-dragging {
+  opacity: 0.35;
+  border-color: rgba(187,0,255,0.4);
+}
+
+/* Drop target indicators */
+.stop-row.drag-over--above {
+  border-top: 2px solid var(--primary, #bb00ff);
+  margin-top: -1px;
+}
+.stop-row.drag-over--below {
+  border-bottom: 2px solid var(--primary, #bb00ff);
+  margin-bottom: -1px;
 }
 
 .stop-row:hover{

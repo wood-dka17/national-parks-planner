@@ -4,15 +4,15 @@
     "name": "Acadia National Park",
     "parkCode": "acad",
     "state": "ME",
-    "lat": 44.4085418988,
-    "lon": -68.2461366995,
+    "lat": 44.47054889222931,
+    "lon": -68.36618185043335,
     "url": "https://www.nps.gov/acad/index.htm",
     "designation": "National Park",
     "description": "Acadia National Park protects the natural beauty of the highest rocky headlands along the Atlantic coastline of the United States, an abundance of habitats, and a rich cultural heritage. At 4 million visits a year, it's one of the top 10 most-visited national parks in the United States. Visitors enj…",
     "entranceFee": 6,
     "entranceFeeDesc": "Timed Entry Reservation - Location",
     "operatingHours": "Acadia National Park is open year-round. Check our website for park facilities operating hours, such as Hulls Cove Visit…",
-    "visitorCenterName": "Hulls Cove Visitor Center"
+    "visitorCenterName": "Acadia Gateway Center"
   },
   {
     "id": 1,
@@ -576,15 +576,15 @@
     "name": "Mesa Verde National Park",
     "parkCode": "meve",
     "state": "CO",
-    "lat": 37.3316458662,
-    "lon": -108.415798078,
+    "lat": 37.18453,
+    "lon": -108.488294,
     "url": "https://www.nps.gov/meve/index.htm",
     "designation": "National Park",
     "description": "For over 700 years, the Ancestral Pueblo people built thriving communities on the mesas and in the cliffs of Mesa Verde. Today, the park protects the rich cultural heritage of 27 Pueblos and Tribes and offers visitors a spectacular window into the past. This World Heritage Site and International Dar…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "The park is open daily except for emergency conditions. The Visitor & Research Center and Mesa Verde Museum are open all…",
-    "visitorCenterName": "Entrance Station Kiosk"
+    "visitorCenterName": "Mesa Verde Museum"
   },
   {
     "id": 41,
@@ -651,7 +651,7 @@
     "lon": -109.78882312774658,
     "url": "https://www.nps.gov/pefo/index.htm",
     "designation": "National Park",
-    "description": "Park Hours: 8am to 5pm, MST. Don't forget that Arizona does not observe Daylight Savings. Petrified Forest is best known for its Triassic fossils. It's like having two parks in one, an ecosystem over 200 million years old with plants and animals now represented in the surreal landscape of the Painte…",
+    "description": "A landscape where deep time lies fully on display, Petrified Forest National Park blends colorful badlands, vast grasslands, and one of the world’s largest and most vivid collections of petrified wood. Spanning more than 200 million years of geologic history, the park protects ancient fossils, ances…",
     "entranceFee": 25,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Park Road hours of operation may change due to weather or safety issues. Closed Thanksgiving and Christmas.",

@@ -49,15 +49,15 @@
     "name": "Big Bend National Park",
     "parkCode": "bibe",
     "state": "TX",
-    "lat": 29.134282140186286,
-    "lon": -103.51492166519165,
+    "lat": 29.2705194325,
+    "lon": -103.29934792,
     "url": "https://www.nps.gov/bibe/index.htm",
     "designation": "National Park",
     "description": "There is a place in Far West Texas where night skies are dark as coal and rivers carve temple-like canyons in ancient limestone. Here, at the end of the road, hundreds of bird species take refuge in a solitary mountain range surrounded by weather-beaten desert. Tenacious cactus bloom in sublime sout…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Big Bend National Park is always open. You can enter and exit at any time of the day or night. Park entrances are open 2…",
-    "visitorCenterName": "Castolon Visitor Center"
+    "visitorCenterName": "Chisos Basin Visitor Center"
   },
   {
     "id": 4,
@@ -193,13 +193,13 @@
     "name": "Cuyahoga Valley National Park",
     "parkCode": "cuva",
     "state": "OH",
-    "lat": 41.37258205,
-    "lon": -81.61302897999997,
+    "lat": 41.200817,
+    "lon": -81.57199000000003,
     "url": "https://www.nps.gov/cuva/index.htm",
     "designation": "National Park",
     "description": "Though a short distance from the urban areas of Cleveland and Akron, Cuyahoga Valley National Park seems worlds away. The park is a refuge for native plants and wildlife, and provides routes of discovery for visitors. The winding Cuyahoga River gives way to deep forests, rolling hills, and open farm…",
     "operatingHours": "Cuyahoga Valley National Park is open everyday, 24 hours a day with the following exceptions: Brandywine Falls, Ledges, …",
-    "visitorCenterName": "Canal Exploration Center"
+    "visitorCenterName": "Hunt House"
   },
   {
     "id": 14,
@@ -307,15 +307,15 @@
     "name": "Glacier National Park",
     "parkCode": "glac",
     "state": "MT",
-    "lat": 48.523107,
-    "lon": -113.988484,
+    "lat": 48.74748440705955,
+    "lon": -113.43909177010931,
     "url": "https://www.nps.gov/glac/index.htm",
     "designation": "National Park",
     "description": "A showcase of melting glaciers, alpine meadows, carved valleys, and spectacular lakes. With over 700 miles of trails, Glacier is a paradise for adventurous visitors seeking a landscape steeped in human culture. Relive the days of old through historic chalets, lodges, and the famous Going-to-the-Sun …",
     "entranceFee": 35,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Glacier National Park is open 24 hours a day 365 days of the year. An entrance fee is required, even when entrance stati…",
-    "visitorCenterName": "Apgar Visitor Center"
+    "visitorCenterName": "St. Mary Visitor Center"
   },
   {
     "id": 22,
@@ -380,13 +380,13 @@
     "name": "Great Smoky Mountains National Park",
     "parkCode": "grsm",
     "state": "NC,TN",
-    "lat": 35.5849678472,
-    "lon": -83.8430866741,
+    "lat": 35.51307495661485,
+    "lon": -83.30611892774084,
     "url": "https://www.nps.gov/grsm/index.htm",
     "designation": "National Park",
     "description": "Ridge upon ridge of forest straddles the border between North Carolina and Tennessee in Great Smoky Mountains National Park. World renowned for its diversity of plant and animal life, the beauty of its ancient mountains, and the quality of its remnants of Southern Appalachian mountain culture, this …",
     "operatingHours": "Primary roads are open 24 hours a day, seven days a week, year-round, weather permitting. This includes Newfound Gap Roa…",
-    "visitorCenterName": "Cades Cove Visitor Center"
+    "visitorCenterName": "Oconaluftee Visitor Center"
   },
   {
     "id": 27,
@@ -408,15 +408,15 @@
     "name": "Haleakalā National Park",
     "parkCode": "hale",
     "state": "HI",
-    "lat": 20.6616606317,
-    "lon": -156.044543068,
+    "lat": 20.7151168141,
+    "lon": -156.249859217,
     "url": "https://www.nps.gov/hale/index.htm",
     "designation": "National Park",
     "description": "This special place vibrates with stories of ancient and modern Hawaiian culture and protects the bond between the land and its people. The park also cares for endangered species, some of which exist nowhere else. Come visit this special place - renew your spirit amid stark volcanic landscapes and su…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "The Summit and Kīpahulu Districts of Haleakalā are open 24 hours a day. A sunrise reservation is required for entry betw…",
-    "visitorCenterName": "Kīpahulu Visitor Center"
+    "visitorCenterName": "Haleakalā Visitor Center"
   },
   {
     "id": 29,
@@ -481,15 +481,15 @@
     "name": "Joshua Tree National Park",
     "parkCode": "jotr",
     "state": "CA",
-    "lat": 33.7485107554,
-    "lon": -115.824081943,
+    "lat": 34.13387197423593,
+    "lon": -116.31545986179077,
     "url": "https://www.nps.gov/jotr/index.htm",
     "designation": "National Park",
     "description": "Two distinct desert ecosystems, the Mojave and the Colorado, come together in Joshua Tree National Park. A fascinating variety of plants and animals make their homes in a land sculpted by strong winds and occasional torrents of rain. Dark night skies, a rich cultural history, and surreal geologic fe…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Joshua Tree National Park is open 24 hours a day, 7 days a week, 365 days a year. Visitation increases as temperatures m…",
-    "visitorCenterName": "Cottonwood Visitor Center"
+    "visitorCenterName": "Joshua Tree Visitor Center"
   },
   {
     "id": 34,
@@ -509,13 +509,13 @@
     "name": "Kenai Fjords National Park",
     "parkCode": "kefj",
     "state": "AK",
-    "lat": 60.18832584166407,
-    "lon": -149.6316518248616,
+    "lat": 60.1162744861,
+    "lon": -149.439743423,
     "url": "https://www.nps.gov/kefj/index.htm",
     "designation": "National Park",
     "description": "At the edge of the Kenai Peninsula lies a land where the ice age lingers. Nearly 40 glaciers flow from the Harding Icefield, Kenai Fjords' crowning feature. Wildlife thrives in icy waters and lush forests along the fjords once carved by the vast expanse of ice. Today, shrinking glaciers bear witness…",
     "operatingHours": "The park is open year-round.  The primary months to visit are June, July, and August.  There are reduced services in the…",
-    "visitorCenterName": "Exit Glacier Nature Center"
+    "visitorCenterName": "Kenai Fjords National Park Visitor Center"
   },
   {
     "id": 36,
@@ -548,15 +548,15 @@
     "name": "Lassen Volcanic National Park",
     "parkCode": "lavo",
     "state": "CA",
-    "lat": 40.4377782526,
-    "lon": -121.533838401,
+    "lat": 40.5361249158,
+    "lon": -121.563149108,
     "url": "https://www.nps.gov/lavo/index.htm",
     "designation": "National Park",
     "description": "Lassen Volcanic National Park is home to steaming fumaroles, meadows freckled with wildflowers, clear mountain lakes, and numerous volcanoes. Jagged peaks tell the story of its eruptive past while hot water continues to shape the land.",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "The park is always open. Road access is limited during the winter season, approximately November through May, due to sno…",
-    "visitorCenterName": "Kohm Yah-mah-nee Visitor Center"
+    "visitorCenterName": "Loomis Museum"
   },
   {
     "id": 39,
@@ -606,41 +606,41 @@
     "name": "New River Gorge National Park & Preserve",
     "parkCode": "neri",
     "state": "WV",
-    "lat": 38.070050800525664,
-    "lon": -81.07593529999019,
+    "lat": 37.831658,
+    "lon": -81.064841,
     "url": "https://www.nps.gov/neri/index.htm",
     "designation": "National Park & Preserve",
     "description": "A rugged, whitewater river flowing northward through deep canyons, the New River is among the oldest rivers on the continent. The park encompasses over 70,000 acres of land along the New River, is rich in cultural and natural history, and offers an abundance of scenic and recreational opportunities.",
     "operatingHours": "The park itself is open 24 hour a day, year round. The park's two main visitor centers at Canyon Rim and Sandstone are o…",
-    "visitorCenterName": "Canyon Rim Visitor Center"
+    "visitorCenterName": "Grandview Visitor Center"
   },
   {
     "id": 43,
     "name": "North Cascades National Park",
     "parkCode": "noca",
     "state": "WA",
-    "lat": 48.6663,
-    "lon": -121.266745,
+    "lat": 48.3083579,
+    "lon": -120.6563682,
     "url": "https://www.nps.gov/noca/index.htm",
     "designation": "National Park",
     "description": "Less than three hours from Seattle, an alpine landscape beckons. Discover communities of life adapted to moisture in the west and recurring fire in the east. Explore jagged peaks crowned by more than 300 glaciers. Listen to cascading waters in forested valleys. Witness a landscape sensitive to the E…",
     "operatingHours": "North Cascades National Park Service Complex is open year-round. The park operational season is late May-late September,…",
-    "visitorCenterName": "North Cascades Visitor Center"
+    "visitorCenterName": "Golden West Visitor Center"
   },
   {
     "id": 44,
     "name": "Olympic National Park",
     "parkCode": "olym",
     "state": "WA",
-    "lat": 48.09941135594742,
-    "lon": -123.42575660012108,
+    "lat": 47.86086245157094,
+    "lon": -123.93479170615859,
     "url": "https://www.nps.gov/olym/index.htm",
     "designation": "National Park",
     "description": "With its incredible range of precipitation and elevation, diversity is the hallmark of Olympic National Park. Encompassing nearly a million acres, the park protects a vast wilderness, thousands of years of human history, and several distinctly different ecosystems, including glacier-capped mountains…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Olympic National Park is open 24 hours a day year-round, although some roads, campgrounds and facilities are open season…",
-    "visitorCenterName": "Olympic National Park Visitor Center"
+    "visitorCenterName": "Hoh Rain Forest Visitor Center"
   },
   {
     "id": 45,
@@ -806,13 +806,13 @@
     "name": "Wrangell - St Elias National Park & Preserve",
     "parkCode": "wrst",
     "state": "AK",
-    "lat": 61.483335,
-    "lon": -142.887817,
+    "lat": 61.515949383,
+    "lon": -144.438231764,
     "url": "https://www.nps.gov/wrst/index.htm",
     "designation": "National Park & Preserve",
     "description": "Wrangell-St. Elias is a vast national park that rises from the ocean all the way up to 18,008 ft. At 13.2 million acres, the park is the same size as Yellowstone National Park, Yosemite National Park, and Switzerland combined! Within this wild landscape, people continue to live off the land as they …",
     "operatingHours": "The park and public lands are always open but visitor facilities have limited seasons: Open in Summer. Call ahead for ho…",
-    "visitorCenterName": "Kennecott Visitor Center"
+    "visitorCenterName": "Chitina Ranger Station"
   },
   {
     "id": 57,

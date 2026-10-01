@@ -528,7 +528,7 @@
     "passportRegion": "Mid-Atlantic"
   },
   {
-    "name": "Booker T Washington National Monument",
+    "name": "Booker T. Washington National Monument",
     "parkCode": "bowa",
     "designation": "National Monument",
     "layer": "other",
@@ -1137,8 +1137,8 @@
     "parkCode": "colt",
     "designation": "National Historical Park",
     "layer": "other",
-    "lat": 42.4677505493,
-    "lon": -73.203666687,
+    "lat": 41.756169,
+    "lon": -72.663338,
     "states": "CT",
     "url": "https://www.nps.gov/colt/index.htm",
     "passportRegion": "North Atlantic"

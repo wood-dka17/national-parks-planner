@@ -49,15 +49,15 @@
     "name": "Big Bend National Park",
     "parkCode": "bibe",
     "state": "TX",
-    "lat": 29.2705194325,
-    "lon": -103.29934792,
+    "lat": 29.3278272156,
+    "lon": -103.20588915,
     "url": "https://www.nps.gov/bibe/index.htm",
     "designation": "National Park",
     "description": "There is a place in Far West Texas where night skies are dark as coal and rivers carve temple-like canyons in ancient limestone. Here, at the end of the road, hundreds of bird species take refuge in a solitary mountain range surrounded by weather-beaten desert. Tenacious cactus bloom in sublime sout…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Big Bend National Park is always open. You can enter and exit at any time of the day or night. Park entrances are open 2…",
-    "visitorCenterName": "Chisos Basin Visitor Center"
+    "visitorCenterName": "Panther Junction Visitor Center"
   },
   {
     "id": 4,
@@ -152,16 +152,29 @@
     "name": "Channel Islands National Park",
     "parkCode": "chis",
     "state": "CA",
-    "lat": 34.2484535,
-    "lon": -119.266582,
+    "lat": 34.4040948103,
+    "lon": -119.693621455,
     "url": "https://www.nps.gov/chis/index.htm",
     "designation": "National Park",
     "description": "Channel Islands National Park encompasses five remarkable islands and their ocean environment, preserving and protecting a wealth of natural and cultural resources. Isolation over thousands of years has created unique animals, plants, and archeological resources found nowhere else on Earth and helpe…",
     "operatingHours": "The park is open 24 hours a day. Services and facilities have separate hours. Please see descriptions of those facilitie…",
-    "visitorCenterName": "Channel Islands National Park Visitor Center"
+    "visitorCenterName": "Outdoors Santa Barbara Visitor Center"
   },
   {
     "id": 11,
+    "name": "Chiricahua National Park",
+    "parkCode": "chir",
+    "state": "AZ",
+    "lat": 32.005433119638944,
+    "lon": -109.35641828182577,
+    "url": "https://www.nps.gov/chir/index.htm",
+    "designation": "National Park",
+    "description": "Explore rhyolite pinnacles and balanced rocks on foot or by car. Relax at the campground under star-filled, dark skies. See how a mountain range rising between two deserts creates a home for diverse wildlife. Imagine history here. Prehistoric peoples, Apaches, Buffalo Soldiers, Civilian Conservation…",
+    "operatingHours": "The road, campground, and facilities in the park are open overnight. Gates on the road will not be closed during overnig…",
+    "visitorCenterName": "Visitor Center"
+  },
+  {
+    "id": 12,
     "name": "Congaree National Park",
     "parkCode": "cong",
     "state": "SC",
@@ -174,7 +187,7 @@
     "visitorCenterName": "Harry Hampton Visitor Center"
   },
   {
-    "id": 12,
+    "id": 13,
     "name": "Crater Lake National Park",
     "parkCode": "crla",
     "state": "OR",
@@ -189,20 +202,20 @@
     "visitorCenterName": "Rim Visitor Center"
   },
   {
-    "id": 13,
+    "id": 14,
     "name": "Cuyahoga Valley National Park",
     "parkCode": "cuva",
     "state": "OH",
-    "lat": 41.200817,
-    "lon": -81.57199000000003,
+    "lat": 41.26258795,
+    "lon": -81.56030814000002,
     "url": "https://www.nps.gov/cuva/index.htm",
     "designation": "National Park",
     "description": "Though a short distance from the urban areas of Cleveland and Akron, Cuyahoga Valley National Park seems worlds away. The park is a refuge for native plants and wildlife, and provides routes of discovery for visitors. The winding Cuyahoga River gives way to deep forests, rolling hills, and open farm…",
     "operatingHours": "Cuyahoga Valley National Park is open everyday, 24 hours a day with the following exceptions: Brandywine Falls, Ledges, …",
-    "visitorCenterName": "Hunt House"
+    "visitorCenterName": "Boston Mill Visitor Center"
   },
   {
-    "id": 14,
+    "id": 15,
     "name": "Death Valley National Park",
     "parkCode": "deva",
     "state": "CA,NV",
@@ -217,7 +230,7 @@
     "visitorCenterName": "Furnace Creek Visitor Center"
   },
   {
-    "id": 15,
+    "id": 16,
     "name": "Denali National Park & Preserve",
     "parkCode": "dena",
     "state": "AK",
@@ -232,7 +245,7 @@
     "visitorCenterName": "Denali Visitor Center"
   },
   {
-    "id": 16,
+    "id": 17,
     "name": "Dry Tortugas National Park",
     "parkCode": "drto",
     "state": "FL",
@@ -247,7 +260,7 @@
     "visitorCenterName": "Florida Keys Eco-Discovery Center"
   },
   {
-    "id": 17,
+    "id": 18,
     "name": "Everglades National Park",
     "parkCode": "ever",
     "state": "FL",
@@ -262,7 +275,7 @@
     "visitorCenterName": "Ernest F. Coe Visitor Center"
   },
   {
-    "id": 18,
+    "id": 19,
     "name": "Gates Of The Arctic National Park & Preserve",
     "parkCode": "gaar",
     "state": "AK",
@@ -275,7 +288,7 @@
     "visitorCenterName": "Fairbanks Alaska Public Lands Information Center"
   },
   {
-    "id": 19,
+    "id": 20,
     "name": "Gateway Arch National Park",
     "parkCode": "jeff",
     "state": "MO",
@@ -290,7 +303,7 @@
     "visitorCenterName": "Gateway Arch Visitor Center"
   },
   {
-    "id": 20,
+    "id": 21,
     "name": "Glacier Bay National Park & Preserve",
     "parkCode": "glba",
     "state": "AK",
@@ -303,7 +316,7 @@
     "visitorCenterName": "Glacier Bay National Park Visitor Center"
   },
   {
-    "id": 21,
+    "id": 22,
     "name": "Glacier National Park",
     "parkCode": "glac",
     "state": "MT",
@@ -318,7 +331,7 @@
     "visitorCenterName": "St. Mary Visitor Center"
   },
   {
-    "id": 22,
+    "id": 23,
     "name": "Grand Canyon National Park",
     "parkCode": "grca",
     "state": "AZ",
@@ -333,7 +346,7 @@
     "visitorCenterName": "Grand Canyon Visitor Center (South Rim)"
   },
   {
-    "id": 23,
+    "id": 24,
     "name": "Grand Teton National Park",
     "parkCode": "grte",
     "state": "WY",
@@ -348,7 +361,7 @@
     "visitorCenterName": "Craig Thomas Discovery & Visitor Center"
   },
   {
-    "id": 24,
+    "id": 25,
     "name": "Great Basin National Park",
     "parkCode": "grba",
     "state": "NV",
@@ -361,7 +374,7 @@
     "visitorCenterName": "Lehman Caves Visitor Center"
   },
   {
-    "id": 25,
+    "id": 26,
     "name": "Great Sand Dunes National Park & Preserve",
     "parkCode": "grsa",
     "state": "CO",
@@ -376,50 +389,50 @@
     "visitorCenterName": "Great Sand Dunes Visitor Center"
   },
   {
-    "id": 26,
+    "id": 27,
     "name": "Great Smoky Mountains National Park",
     "parkCode": "grsm",
     "state": "NC,TN",
-    "lat": 35.51307495661485,
-    "lon": -83.30611892774084,
+    "lat": 35.685629346,
+    "lon": -83.536602473,
     "url": "https://www.nps.gov/grsm/index.htm",
     "designation": "National Park",
     "description": "Ridge upon ridge of forest straddles the border between North Carolina and Tennessee in Great Smoky Mountains National Park. World renowned for its diversity of plant and animal life, the beauty of its ancient mountains, and the quality of its remnants of Southern Appalachian mountain culture, this …",
     "operatingHours": "Primary roads are open 24 hours a day, seven days a week, year-round, weather permitting. This includes Newfound Gap Roa…",
-    "visitorCenterName": "Oconaluftee Visitor Center"
+    "visitorCenterName": "Sugarlands Visitor Center"
   },
   {
-    "id": 27,
+    "id": 28,
     "name": "Guadalupe Mountains National Park",
     "parkCode": "gumo",
     "state": "TX",
-    "lat": 31.9963104473,
-    "lon": -104.83341809,
+    "lat": 31.8936224,
+    "lon": -104.8220597,
     "url": "https://www.nps.gov/gumo/index.htm",
     "designation": "National Park",
     "description": "Come experience mountains and canyons, desert and dunes, night skies and spectacular vistas within a place unlike any other. Guadalupe Mountains National Park protects the world's most extensive Permian fossil reef, the four highest peaks in Texas, an environmentally diverse collection of flora and …",
     "entranceFee": 10,
     "entranceFeeDesc": "Entrance - Per Person",
     "operatingHours": "The Pine Springs area, including the campground, visitor center, trailhead, and associated parking areas are open and ac…",
-    "visitorCenterName": "Dog Canyon Ranger Station"
+    "visitorCenterName": "Pine Springs Visitor Center"
   },
   {
-    "id": 28,
+    "id": 29,
     "name": "Haleakalā National Park",
     "parkCode": "hale",
     "state": "HI",
-    "lat": 20.7151168141,
-    "lon": -156.249859217,
+    "lat": 20.7594764691,
+    "lon": -156.246784345,
     "url": "https://www.nps.gov/hale/index.htm",
     "designation": "National Park",
     "description": "This special place vibrates with stories of ancient and modern Hawaiian culture and protects the bond between the land and its people. The park also cares for endangered species, some of which exist nowhere else. Come visit this special place - renew your spirit amid stark volcanic landscapes and su…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "The Summit and Kīpahulu Districts of Haleakalā are open 24 hours a day. A sunrise reservation is required for entry betw…",
-    "visitorCenterName": "Haleakalā Visitor Center"
+    "visitorCenterName": "Headquarters Visitor Center"
   },
   {
-    "id": 29,
+    "id": 30,
     "name": "Hawaiʻi Volcanoes National Park",
     "parkCode": "havo",
     "state": "HI",
@@ -434,7 +447,7 @@
     "visitorCenterName": "Welcome Center"
   },
   {
-    "id": 30,
+    "id": 31,
     "name": "Hot Springs National Park",
     "parkCode": "hosp",
     "state": "AR",
@@ -447,7 +460,7 @@
     "visitorCenterName": "Fordyce Bathhouse Visitor Center and Museum"
   },
   {
-    "id": 31,
+    "id": 32,
     "name": "Indiana Dunes National Park",
     "parkCode": "indu",
     "state": "IN",
@@ -462,7 +475,7 @@
     "visitorCenterName": "Dorothy Buell Memorial Visitor Center (Indiana Dunes Visitor Center)"
   },
   {
-    "id": 32,
+    "id": 33,
     "name": "Isle Royale National Park",
     "parkCode": "isro",
     "state": "MI",
@@ -477,7 +490,7 @@
     "visitorCenterName": "Houghton Visitor Center"
   },
   {
-    "id": 33,
+    "id": 34,
     "name": "Joshua Tree National Park",
     "parkCode": "jotr",
     "state": "CA",
@@ -492,7 +505,7 @@
     "visitorCenterName": "Joshua Tree Visitor Center"
   },
   {
-    "id": 34,
+    "id": 35,
     "name": "Katmai National Park & Preserve",
     "parkCode": "katm",
     "state": "AK",
@@ -505,20 +518,20 @@
     "visitorCenterName": "King Salmon Visitor Center"
   },
   {
-    "id": 35,
+    "id": 36,
     "name": "Kenai Fjords National Park",
     "parkCode": "kefj",
     "state": "AK",
-    "lat": 60.1162744861,
-    "lon": -149.439743423,
+    "lat": 60.18832584166407,
+    "lon": -149.6316518248616,
     "url": "https://www.nps.gov/kefj/index.htm",
     "designation": "National Park",
     "description": "At the edge of the Kenai Peninsula lies a land where the ice age lingers. Nearly 40 glaciers flow from the Harding Icefield, Kenai Fjords' crowning feature. Wildlife thrives in icy waters and lush forests along the fjords once carved by the vast expanse of ice. Today, shrinking glaciers bear witness…",
     "operatingHours": "The park is open year-round.  The primary months to visit are June, July, and August.  There are reduced services in the…",
-    "visitorCenterName": "Kenai Fjords National Park Visitor Center"
+    "visitorCenterName": "Exit Glacier Nature Center"
   },
   {
-    "id": 36,
+    "id": 37,
     "name": "Kobuk Valley National Park",
     "parkCode": "kova",
     "state": "AK",
@@ -531,7 +544,7 @@
     "visitorCenterName": "Northwest Arctic Heritage Center"
   },
   {
-    "id": 37,
+    "id": 38,
     "name": "Lake Clark National Park & Preserve",
     "parkCode": "lacl",
     "state": "AK",
@@ -544,7 +557,7 @@
     "visitorCenterName": "Port Alsworth Visitor Center"
   },
   {
-    "id": 38,
+    "id": 39,
     "name": "Lassen Volcanic National Park",
     "parkCode": "lavo",
     "state": "CA",
@@ -559,7 +572,7 @@
     "visitorCenterName": "Loomis Museum"
   },
   {
-    "id": 39,
+    "id": 40,
     "name": "Mammoth Cave National Park",
     "parkCode": "maca",
     "state": "KY",
@@ -572,7 +585,7 @@
     "visitorCenterName": "Mammoth Cave Visitor Center"
   },
   {
-    "id": 40,
+    "id": 41,
     "name": "Mesa Verde National Park",
     "parkCode": "meve",
     "state": "CO",
@@ -583,11 +596,11 @@
     "description": "For over 700 years, the Ancestral Pueblo people built thriving communities on the mesas and in the cliffs of Mesa Verde. Today, the park protects the rich cultural heritage of 27 Pueblos and Tribes and offers visitors a spectacular window into the past. This World Heritage Site and International Dar…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
-    "operatingHours": "The park is open daily except for emergency conditions. The Visitor & Research Center and Mesa Verde Museum are open all…",
+    "operatingHours": "The park is open daily except for emergency conditions. Ancestral sites, picnic areas, and trails are open 8 am to sunse…",
     "visitorCenterName": "Mesa Verde Visitor and Research Center"
   },
   {
-    "id": 41,
+    "id": 42,
     "name": "Mount Rainier National Park",
     "parkCode": "mora",
     "state": "WA",
@@ -602,7 +615,7 @@
     "visitorCenterName": "Longmire Museum"
   },
   {
-    "id": 42,
+    "id": 43,
     "name": "New River Gorge National Park & Preserve",
     "parkCode": "neri",
     "state": "WV",
@@ -615,35 +628,35 @@
     "visitorCenterName": "Grandview Visitor Center"
   },
   {
-    "id": 43,
+    "id": 44,
     "name": "North Cascades National Park",
     "parkCode": "noca",
     "state": "WA",
-    "lat": 48.3083579,
-    "lon": -120.6563682,
+    "lat": 48.5109643596,
+    "lon": -122.227610517,
     "url": "https://www.nps.gov/noca/index.htm",
     "designation": "National Park",
     "description": "Less than three hours from Seattle, an alpine landscape beckons. Discover communities of life adapted to moisture in the west and recurring fire in the east. Explore jagged peaks crowned by more than 300 glaciers. Listen to cascading waters in forested valleys. Witness a landscape sensitive to the E…",
     "operatingHours": "North Cascades National Park Service Complex is open year-round. The park operational season is late May-late September,…",
-    "visitorCenterName": "Golden West Visitor Center"
+    "visitorCenterName": "Forest Info Center with HQ Administration Building"
   },
   {
-    "id": 44,
+    "id": 45,
     "name": "Olympic National Park",
     "parkCode": "olym",
     "state": "WA",
-    "lat": 47.86086245157094,
-    "lon": -123.93479170615859,
+    "lat": 47.602878078471015,
+    "lon": -124.36967655606401,
     "url": "https://www.nps.gov/olym/index.htm",
     "designation": "National Park",
     "description": "With its incredible range of precipitation and elevation, diversity is the hallmark of Olympic National Park. Encompassing nearly a million acres, the park protects a vast wilderness, thousands of years of human history, and several distinctly different ecosystems, including glacier-capped mountains…",
     "entranceFee": 30,
     "entranceFeeDesc": "Entrance - Private Vehicle",
     "operatingHours": "Olympic National Park is open 24 hours a day year-round, although some roads, campgrounds and facilities are open season…",
-    "visitorCenterName": "Hoh Rain Forest Visitor Center"
+    "visitorCenterName": "Kalaloch Ranger Station"
   },
   {
-    "id": 45,
+    "id": 46,
     "name": "Petrified Forest National Park",
     "parkCode": "pefo",
     "state": "AZ",
@@ -658,7 +671,7 @@
     "visitorCenterName": "Rainbow Forest Museum"
   },
   {
-    "id": 46,
+    "id": 47,
     "name": "Pinnacles National Park",
     "parkCode": "pinn",
     "state": "CA",
@@ -673,7 +686,7 @@
     "visitorCenterName": "Pinnacles Park Store"
   },
   {
-    "id": 47,
+    "id": 48,
     "name": "Rocky Mountain National Park",
     "parkCode": "romo",
     "state": "CO",
@@ -688,7 +701,7 @@
     "visitorCenterName": "Information Office"
   },
   {
-    "id": 48,
+    "id": 49,
     "name": "Saguaro National Park",
     "parkCode": "sagu",
     "state": "AZ",
@@ -703,7 +716,7 @@
     "visitorCenterName": "Red Hills Visitor Center (West)"
   },
   {
-    "id": 49,
+    "id": 50,
     "name": "Sequoia & Kings Canyon National Parks",
     "parkCode": "seki",
     "state": "CA",
@@ -718,7 +731,7 @@
     "visitorCenterName": "Foothills Visitor Center"
   },
   {
-    "id": 50,
+    "id": 51,
     "name": "Shenandoah National Park",
     "parkCode": "shen",
     "state": "VA",
@@ -733,7 +746,7 @@
     "visitorCenterName": "Dickey Ridge Visitor Center"
   },
   {
-    "id": 51,
+    "id": 52,
     "name": "Theodore Roosevelt National Park",
     "parkCode": "thro",
     "state": "ND",
@@ -748,7 +761,7 @@
     "visitorCenterName": "North Unit Visitor Center"
   },
   {
-    "id": 52,
+    "id": 53,
     "name": "Virgin Islands National Park",
     "parkCode": "viis",
     "state": "VI",
@@ -761,7 +774,7 @@
     "visitorCenterName": "Cruz Bay Visitor Center"
   },
   {
-    "id": 53,
+    "id": 54,
     "name": "Voyageurs National Park",
     "parkCode": "voya",
     "state": "MN",
@@ -774,7 +787,7 @@
     "visitorCenterName": "Rainy Lake Visitor Center"
   },
   {
-    "id": 54,
+    "id": 55,
     "name": "White Sands National Park",
     "parkCode": "whsa",
     "state": "NM",
@@ -789,7 +802,7 @@
     "visitorCenterName": "White Sands Visitor Center"
   },
   {
-    "id": 55,
+    "id": 56,
     "name": "Wind Cave National Park",
     "parkCode": "wica",
     "state": "SD",
@@ -802,20 +815,20 @@
     "visitorCenterName": "Wind Cave Visitor Center"
   },
   {
-    "id": 56,
+    "id": 57,
     "name": "Wrangell - St Elias National Park & Preserve",
     "parkCode": "wrst",
     "state": "AK",
-    "lat": 61.515949383,
-    "lon": -144.438231764,
+    "lat": 62.02004606283073,
+    "lon": -145.36344408988953,
     "url": "https://www.nps.gov/wrst/index.htm",
     "designation": "National Park & Preserve",
     "description": "Wrangell-St. Elias is a vast national park that rises from the ocean all the way up to 18,008 ft. At 13.2 million acres, the park is the same size as Yellowstone National Park, Yosemite National Park, and Switzerland combined! Within this wild landscape, people continue to live off the land as they …",
     "operatingHours": "The park and public lands are always open but visitor facilities have limited seasons: Open in Summer. Call ahead for ho…",
-    "visitorCenterName": "Chitina Ranger Station"
+    "visitorCenterName": "Wrangell-St. Elias Visitor Center in Copper Center"
   },
   {
-    "id": 57,
+    "id": 58,
     "name": "Yellowstone National Park",
     "parkCode": "yell",
     "state": "ID,MT,WY",
@@ -829,7 +842,7 @@
     "visitorCenterName": "Albright Visitor Center"
   },
   {
-    "id": 58,
+    "id": 59,
     "name": "Yosemite National Park",
     "parkCode": "yose",
     "state": "CA",
@@ -844,7 +857,7 @@
     "visitorCenterName": "Yosemite Valley Welcome Center"
   },
   {
-    "id": 59,
+    "id": 60,
     "name": "Zion National Park",
     "parkCode": "zion",
     "state": "UT",

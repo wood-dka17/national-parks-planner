@@ -1056,10 +1056,10 @@
     "passportRegion": "Southwest"
   },
   {
-    "name": "Chiricahua National Monument",
+    "name": "Chiricahua National Park",
     "parkCode": "chir",
-    "designation": "National Monument",
-    "layer": "other",
+    "designation": "National Park",
+    "layer": "national-park",
     "lat": 32.01214618,
     "lon": -109.341607,
     "states": "AZ",
@@ -1307,6 +1307,17 @@
     "states": "AK",
     "url": "https://www.nps.gov/dena/index.htm",
     "passportRegion": "Pacific Northwest & Alaska"
+  },
+  {
+    "name": "Desert Shield and Desert Storm Memorial",
+    "parkCode": "dsds",
+    "designation": "Memorial",
+    "layer": "other",
+    "lat": 38.89170687,
+    "lon": -77.05068618,
+    "states": "DC",
+    "url": "https://www.nps.gov/dsds/index.htm",
+    "passportRegion": "National Capital"
   },
   {
     "name": "Devils Postpile National Monument",
